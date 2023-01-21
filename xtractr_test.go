@@ -9,7 +9,7 @@ import (
 // TODO: implement tests for unsigned numbers
 
 type TestStruct struct {
-	Xtractr          string `json:"-"`
+	Xtractr          string `xtractr:"-"`
 	FieldOne         bool   `json:"fieldOne" xtractr:"path"`
 	FieldTwo         string `json:"fieldTwo" xtractr:"path"`
 	FieldThree       int    `json:"fieldThree" xtractr:"path"`
@@ -27,7 +27,7 @@ type TestStruct struct {
 }
 
 type TestStructTwo struct {
-	Xtractr          string     `json:"-"`
+	Xtractr          string     `xtractr:"-"`
 	FieldThirteen    float32    `json:"fieldThirteen" xtractr:"path"`
 	FieldFourteen    float64    `json:"fieldFourteen" xtractr:"path"`
 	FieldFifteen     complex64  `json:"fieldFifteen" xtractr:"path"`
@@ -40,7 +40,7 @@ type TestStructTwo struct {
 }
 
 type TestStructThree struct {
-	Xtractr          string `json:"-"`
+	Xtractr          string `xtractr:"-"`
 	FieldEight       uint   `json:"fieldEight" xtractr:"path"`
 	FieldNine        uint8  `json:"fieldNine" xtractr:"path"`
 	FieldTen         uint16 `json:"fieldTen" xtractr:"path"`
