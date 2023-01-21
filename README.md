@@ -33,7 +33,7 @@ path or query using the `xtractr` tag. Example:
 
 ```go
 type MyStruct struct {
-	XtractrPath string `json:"-"` // XtractrPath only needs a `json` tag with the value "-"
+	Xtractr string `xtractr:"-"` // XtractrPath only needs a `json` tag with the value "-"
 	FieldOne    int    `json:"fieldOne" xtractr:"path"`
 	FieldTwo    string `json:"fieldTwo" xtractr:"query"`
 }
@@ -45,7 +45,7 @@ to `xtractr.ExtractParams()`
 
 ```go
 func HandlerFunc(w http.ResponseWriter, r *http.Request) {
-	params := MyStruct {XtractrPath: "/{fieldOne}"}
+	params := MyStruct {Xtractr: "/{fieldOne}"}
 	
 	xtractr.ExtractParams(r, &params)
 }
@@ -63,13 +63,13 @@ import (
 )
 
 type MyStruct struct {
-	XtractrPath string `json:"-"` // XtractrPath only needs a `json` tag with the value "-"
+	Xtractr string `xtractr:"-"` // XtractrPath only needs a `json` tag with the value "-"
 	FieldOne    int    `json:"fieldOne" xtractr:"path"`
 	FieldTwo    string `json:"fieldTwo" xtractr:"query"`
 }
 
 func main() {
-	params := MyStruct{XtractrPath: "/{fieldOne}"}
+	params := MyStruct{Xtractr: "/{fieldOne}"}
 
 	// Typically, one would use Xtractr in an Http.HandlerFunc
 	// but the focus of creating this new http Request is on
