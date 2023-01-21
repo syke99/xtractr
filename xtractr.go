@@ -1,8 +1,7 @@
-package xtractr
+package main
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -10,9 +9,9 @@ import (
 )
 
 func Extract(request *http.Request, dst any) error {
-	str := reflect.ValueOf(dst).Elem()
+	str := reflect.ValueOf(dst)
 
-	matchPath := str.FieldByName("XtractrPath").String()
+	matchPath := str.Elem().FieldByName("XtractrPath").String()
 
 	if matchPath[:1] == "/" {
 		matchPath = matchPath[1:]
@@ -48,7 +47,9 @@ func getMatchedPathParams(toMatch string, requested string) map[string]string {
 		if matchPathParts[i][:1] == "{" &&
 			matchPathParts[i][len(matchPathParts[i])-1:] == "}" {
 
-			m[matchPathParts[i]] = reqPart
+			strippedMatch := matchPathParts[i][1 : len(matchPathParts[i])-1]
+
+			m[strippedMatch] = reqPart
 		}
 	}
 
@@ -56,98 +57,87 @@ func getMatchedPathParams(toMatch string, requested string) map[string]string {
 }
 
 func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]string) error {
-	for i := 0; i < str.NumField(); i++ {
-		field := str.Type().Field(i)
+	for i := 0; i < str.Elem().Type().NumField(); i++ {
+		field := str.Elem().Type().Field(i)
 		tag := field.Tag
 
-		if tag.Get("json") == "-" {
+		jsonTag := tag.Get("json")
+
+		if jsonTag == "-" {
 			continue
 		}
 
-		if tag.Get("xtractr") == "path" {
-			switch str.Field(i).Type().Kind() {
+		xtractrTag := tag.Get("xtractr")
+
+		if xtractrTag == "query" &&
+			str.Elem().Field(i).CanSet() {
+
+			vals := request.URL.Query()[jsonTag]
+
+			switch field.Type.Kind() {
 			case reflect.Bool:
-				v, err := strconv.ParseBool(pathParams[tag.Get("json")])
+				v, err := strconv.ParseBool(vals[0])
 				if err != nil {
 					return err
 				}
-				if str.Field(i).CanSet() {
-					str.Field(i).SetBool(v)
-				}
+				str.Elem().Field(i).SetBool(v)
 			case reflect.String:
-				if str.Field(i).CanSet() {
-					str.Field(i).SetString(pathParams[tag.Get("json")])
-				}
+				str.Elem().Field(i).SetString(vals[0])
 			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-				v, err := strconv.Atoi(pathParams[tag.Get("json")])
+				v, err := strconv.Atoi(vals[0])
 				if err != nil {
 					return err
 				}
-				if str.Field(i).CanSet() {
-					str.Field(i).SetInt(int64(v))
-				}
+				str.Elem().Field(i).SetInt(int64(v))
 			case reflect.Float32, reflect.Float64:
-				v, err := strconv.Atoi(pathParams[tag.Get("json")])
+				v, err := strconv.Atoi(vals[0])
 				if err != nil {
 					return err
 				}
-				if str.Field(i).CanSet() {
-					str.Field(i).SetFloat(float64(v))
-				}
+				str.Elem().Field(i).SetFloat(float64(v))
 			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-				v, err := strconv.Atoi(pathParams[tag.Get("json")])
+				v, err := strconv.Atoi(vals[0])
 				if err != nil {
 					return err
 				}
-				if str.Field(i).CanSet() {
-					str.Field(i).SetUint(uint64(v))
-				}
+				str.Elem().Field(i).SetUint(uint64(v))
+			case reflect.Array, reflect.Slice:
+				str.Elem().Field(i).Set(reflect.ValueOf(vals))
 			}
 		}
 
-		if tag.Get("xtractr") == "query" {
-			if !request.URL.Query().Has(tag.Get("json")) {
-				return errors.New(fmt.Sprintf("no query parameter found for field: %s", str.Type().Field(i).Name))
-			}
+		if xtractrTag == "path" &&
+			str.Elem().Field(i).CanSet() {
 
-			val := request.URL.Query().Get(tag.Get("json"))
-			switch str.Field(i).Type().Kind() {
+			switch field.Type.Kind() {
 			case reflect.Bool:
-				if str.Field(i).CanSet() {
-					v, err := strconv.ParseBool(val)
-					if err != nil {
-						return err
-					}
-					str.Field(i).SetBool(v)
+				v, err := strconv.ParseBool(pathParams[jsonTag])
+				if err != nil {
+					return err
 				}
+				str.Elem().Field(i).SetBool(v)
 			case reflect.String:
-				if str.Field(i).CanSet() {
-					str.Field(i).SetString(val)
-				}
+				str.Elem().Field(i).SetString(pathParams[jsonTag])
 			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-				v, err := strconv.Atoi(val)
+				v, err := strconv.Atoi(pathParams[jsonTag])
 				if err != nil {
 					return err
 				}
-				if str.Field(i).CanSet() {
-					str.Field(i).SetInt(int64(v))
-				}
+				str.Elem().Field(i).SetInt(int64(v))
 			case reflect.Float32, reflect.Float64:
-				v, err := strconv.Atoi(val)
+				v, err := strconv.Atoi(pathParams[jsonTag])
 				if err != nil {
 					return err
 				}
-				if str.Field(i).CanSet() {
-					str.Field(i).SetFloat(float64(v))
-				}
+				str.Elem().Field(i).SetFloat(float64(v))
 			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-				v, err := strconv.Atoi(val)
+				v, err := strconv.Atoi(pathParams[jsonTag])
 				if err != nil {
 					return err
 				}
-				if str.Field(i).CanSet() {
-					str.Field(i).SetUint(uint64(v))
-				}
+				str.Elem().Field(i).SetUint(uint64(v))
+			case reflect.Array, reflect.Slice:
+				str.Elem().Set(reflect.ValueOf(pathParams[jsonTag]))
 			}
 		}
 	}
