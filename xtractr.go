@@ -1,14 +1,13 @@
-package main
+package xtractr
 
 import (
-	"errors"
 	"net/http"
 	"reflect"
 	"strconv"
 	"strings"
 )
 
-func ExtractParams(request *http.Request, dst any) error {
+func ExtractParams(request *http.Request, dst any) {
 	str := reflect.ValueOf(dst)
 
 	matchPath := str.Elem().FieldByName("XtractrPath").String()
@@ -25,10 +24,10 @@ func ExtractParams(request *http.Request, dst any) error {
 
 	pathParams := getMatchedPathParams(matchPath, reqPath)
 	if pathParams == nil {
-		return errors.New("cannot parse request path with expected XtractrPath in dst")
+		return
 	}
 
-	return unmarshal(request, str, pathParams)
+	unmarshal(request, str, pathParams)
 }
 
 func getMatchedPathParams(toMatch string, requested string) map[string]string {
@@ -57,8 +56,10 @@ func getMatchedPathParams(toMatch string, requested string) map[string]string {
 }
 
 func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]string) error {
-	for i := 0; i < str.Elem().Type().NumField(); i++ {
-		field := str.Elem().Type().Field(i)
+	elem := str.Elem()
+
+	for i := 0; i < elem.Type().NumField(); i++ {
+		field := elem.Type().Field(i)
 		tag := field.Tag
 
 		jsonTag := tag.Get("json")
@@ -70,7 +71,7 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 		xtractrTag := tag.Get("xtractr")
 
 		if xtractrTag == "query" &&
-			str.Elem().Field(i).CanSet() {
+			elem.Field(i).CanSet() {
 
 			vals := request.URL.Query()[jsonTag]
 
@@ -80,9 +81,9 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 				if err != nil {
 					return err
 				}
-				str.Elem().Field(i).SetBool(v)
+				elem.Field(i).SetBool(v)
 			case reflect.String:
-				str.Elem().Field(i).SetString(vals[0])
+				elem.Field(i).SetString(vals[0])
 			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 				bz := 0
 				switch field.Type.Kind() {
@@ -99,7 +100,7 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 				if err != nil {
 					return err
 				}
-				str.Elem().Field(i).SetInt(v)
+				elem.Field(i).SetInt(v)
 			case reflect.Float32, reflect.Float64:
 				bz := 32
 				if field.Type.Kind() == reflect.Float64 {
@@ -109,7 +110,7 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 				if err != nil {
 					return err
 				}
-				str.Elem().Field(i).SetFloat(v)
+				elem.Field(i).SetFloat(v)
 			case reflect.Complex64, reflect.Complex128:
 				bz := 64
 				if field.Type.Kind() == reflect.Complex128 {
@@ -119,7 +120,7 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 				if err != nil {
 					return err
 				}
-				str.Elem().Field(i).SetComplex(v)
+				elem.Field(i).SetComplex(v)
 			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 				bz := 0
 				switch field.Type.Kind() {
@@ -136,14 +137,14 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 				if err != nil {
 					return err
 				}
-				str.Elem().Field(i).SetUint(v)
+				elem.Field(i).SetUint(v)
 			case reflect.Array, reflect.Slice:
-				str.Elem().Field(i).Set(reflect.ValueOf(vals))
+				elem.Field(i).Set(reflect.ValueOf(vals))
 			}
 		}
 
 		if xtractrTag == "path" &&
-			str.Elem().Field(i).CanSet() {
+			elem.Field(i).CanSet() {
 
 			j := pathParams[jsonTag]
 
@@ -153,9 +154,9 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 				if err != nil {
 					return err
 				}
-				str.Elem().Field(i).SetBool(v)
+				elem.Field(i).SetBool(v)
 			case reflect.String:
-				str.Elem().Field(i).SetString(j)
+				elem.Field(i).SetString(j)
 			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 				bz := 0
 				switch field.Type.Kind() {
@@ -172,7 +173,7 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 				if err != nil {
 					return err
 				}
-				str.Elem().Field(i).SetInt(v)
+				elem.Field(i).SetInt(v)
 			case reflect.Float32, reflect.Float64:
 				bz := 32
 				if field.Type.Kind() == reflect.Float64 {
@@ -182,7 +183,7 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 				if err != nil {
 					return err
 				}
-				str.Elem().Field(i).SetFloat(v)
+				elem.Field(i).SetFloat(v)
 			case reflect.Complex64, reflect.Complex128:
 				bz := 64
 				if field.Type.Kind() == reflect.Complex128 {
@@ -192,7 +193,7 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 				if err != nil {
 					return err
 				}
-				str.Elem().Field(i).SetComplex(v)
+				elem.Field(i).SetComplex(v)
 			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 				bz := 0
 				switch field.Type.Kind() {
@@ -209,9 +210,9 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 				if err != nil {
 					return err
 				}
-				str.Elem().Field(i).SetUint(v)
+				elem.Field(i).SetUint(v)
 			case reflect.Array, reflect.Slice:
-				str.Elem().Set(reflect.ValueOf(j))
+				elem.Set(reflect.ValueOf(j))
 			}
 		}
 	}
