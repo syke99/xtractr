@@ -15,7 +15,7 @@ func ExtractParams(request *http.Request, dst any) {
 		return
 	}
 
-	matchPath := str.Elem().FieldByName("XtractrPath").String()
+	matchPath := str.Elem().FieldByName("Xtractr").String()
 
 	if matchPath[:1] == "/" {
 		matchPath = matchPath[1:]
@@ -77,11 +77,11 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 
 		jsonTag := tag.Get("json")
 
-		if jsonTag == "-" {
+		xtractrTag := tag.Get("xtractr")
+
+		if xtractrTag == "-" {
 			continue
 		}
-
-		xtractrTag := tag.Get("xtractr")
 
 		if xtractrTag == "query" &&
 			elem.Field(i).CanSet() {

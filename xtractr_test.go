@@ -9,7 +9,7 @@ import (
 // TODO: implement tests for unsigned numbers
 
 type TestStruct struct {
-	XtractrPath      string `json:"-"`
+	Xtractr          string `json:"-"`
 	FieldOne         bool   `json:"fieldOne" xtractr:"path"`
 	FieldTwo         string `json:"fieldTwo" xtractr:"path"`
 	FieldThree       int    `json:"fieldThree" xtractr:"path"`
@@ -27,7 +27,7 @@ type TestStruct struct {
 }
 
 type TestStructTwo struct {
-	XtractrPath      string     `json:"-"`
+	Xtractr          string     `json:"-"`
 	FieldThirteen    float32    `json:"fieldThirteen" xtractr:"path"`
 	FieldFourteen    float64    `json:"fieldFourteen" xtractr:"path"`
 	FieldFifteen     complex64  `json:"fieldFifteen" xtractr:"path"`
@@ -40,7 +40,7 @@ type TestStructTwo struct {
 }
 
 type TestStructThree struct {
-	XtractrPath      string `json:"-"`
+	Xtractr          string `json:"-"`
 	FieldEight       uint   `json:"fieldEight" xtractr:"path"`
 	FieldNine        uint8  `json:"fieldNine" xtractr:"path"`
 	FieldTen         uint16 `json:"fieldTen" xtractr:"path"`
@@ -60,7 +60,7 @@ func TestExtractParams_FirstStruct(t *testing.T) {
 	path := "/true/goodbye/1/2/3/4/5/?fieldSeventeen&fieldEighteen=hello&fieldNineteen=1&fieldTwenty=2&fieldTwentyOne=3&fieldTwentyTwo=4&fieldTwentyThree=5"
 
 	params := TestStruct{
-		XtractrPath: testPath,
+		Xtractr: testPath,
 	}
 
 	request, _ := http.NewRequest(http.MethodGet, path, nil)
@@ -87,7 +87,7 @@ func TestExtractParams_SecondStuct(t *testing.T) {
 	path := "11.0/12.1/13i/14i?fieldTwentyNine=11.0&fieldThirty=12.1&fieldThirtyOne=13i&fieldThirtyTwo=14i&fieldThirtyThree=hello&fieldThirtyThree=world"
 
 	params := TestStructTwo{
-		XtractrPath: testPathTwo,
+		Xtractr: testPathTwo,
 	}
 
 	request, _ := http.NewRequest(http.MethodGet, path, nil)
