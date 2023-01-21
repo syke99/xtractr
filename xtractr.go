@@ -21,10 +21,18 @@ func ExtractParams(request *http.Request, dst any) {
 		matchPath = matchPath[1:]
 	}
 
+	if matchPath[len(matchPath)-1:] == "/" {
+		matchPath = matchPath[:len(matchPath)-1]
+	}
+
 	reqPath := request.URL.Path
 
 	if reqPath[:1] == "/" {
 		reqPath = reqPath[1:]
+	}
+
+	if reqPath[len(reqPath)-1:] == "/" {
+		reqPath = reqPath[:len(reqPath)-1]
 	}
 
 	pathParams := getMatchedPathParams(matchPath, reqPath)
@@ -155,8 +163,6 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 					return
 				}
 				elem.Field(i).SetUint(v)
-			case reflect.Array, reflect.Slice:
-				elem.Field(i).Set(reflect.ValueOf(vals))
 			}
 		}
 
