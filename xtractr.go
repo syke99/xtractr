@@ -29,6 +29,33 @@ func Extract(request *http.Request, dst any) error {
 		return errors.New("cannot parse request path with expected XtractrPath in dst")
 	}
 
+	return unmarshal(request, str, pathParams)
+}
+
+func getMatchedPathParams(toMatch string, requested string) map[string]string {
+
+	matchPathParts := strings.Split(toMatch, "/")
+
+	reqPathParts := strings.Split(requested, "/")
+
+	if len(matchPathParts) != len(reqPathParts) {
+		return nil
+	}
+
+	m := make(map[string]string)
+
+	for i, reqPart := range reqPathParts {
+		if matchPathParts[i][:1] == "{" &&
+			matchPathParts[i][len(matchPathParts[i])-1:] == "}" {
+
+			m[matchPathParts[i]] = reqPart
+		}
+	}
+
+	return m
+}
+
+func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]string) error {
 	for i := 0; i < str.NumField(); i++ {
 		field := str.Type().Field(i)
 		tag := field.Tag
@@ -126,27 +153,4 @@ func Extract(request *http.Request, dst any) error {
 	}
 
 	return nil
-}
-
-func getMatchedPathParams(toMatch string, requested string) map[string]string {
-
-	matchPathParts := strings.Split(toMatch, "/")
-
-	reqPathParts := strings.Split(requested, "/")
-
-	if len(matchPathParts) != len(reqPathParts) {
-		return nil
-	}
-
-	m := make(map[string]string)
-
-	for i, reqPart := range reqPathParts {
-		if matchPathParts[i][:1] == "{" &&
-			matchPathParts[i][len(matchPathParts[i])-1:] == "}" {
-
-			m[matchPathParts[i]] = reqPart
-		}
-	}
-
-	return m
 }
