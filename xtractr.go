@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func Extract(request *http.Request, dst any) error {
+func ExtractParams(request *http.Request, dst any) error {
 	str := reflect.ValueOf(dst)
 
 	matchPath := str.Elem().FieldByName("XtractrPath").String()
