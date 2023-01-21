@@ -55,7 +55,7 @@ func getMatchedPathParams(toMatch string, requested string) map[string]string {
 	return m
 }
 
-func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]string) error {
+func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]string) {
 	elem := str.Elem()
 
 	for i := 0; i < elem.Type().NumField(); i++ {
@@ -77,11 +77,23 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 
 			switch field.Type.Kind() {
 			case reflect.Bool:
-				v, err := strconv.ParseBool(vals[0])
-				if err != nil {
-					return err
+				b := false
+				if request.URL.Query().Has(jsonTag) &&
+					request.URL.Query().Get(jsonTag) != "" {
+					v, err := strconv.ParseBool(vals[0])
+					if err != nil {
+						return
+					}
+
+					b = v
 				}
-				elem.Field(i).SetBool(v)
+
+				if request.URL.Query().Has(jsonTag) &&
+					request.URL.Query().Get(jsonTag) == "" {
+					b = true
+				}
+
+				elem.Field(i).SetBool(b)
 			case reflect.String:
 				elem.Field(i).SetString(vals[0])
 			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
@@ -98,7 +110,7 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 				}
 				v, err := strconv.ParseInt(vals[0], 10, bz)
 				if err != nil {
-					return err
+					return
 				}
 				elem.Field(i).SetInt(v)
 			case reflect.Float32, reflect.Float64:
@@ -108,7 +120,7 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 				}
 				v, err := strconv.ParseFloat(vals[0], bz)
 				if err != nil {
-					return err
+					return
 				}
 				elem.Field(i).SetFloat(v)
 			case reflect.Complex64, reflect.Complex128:
@@ -118,7 +130,7 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 				}
 				v, err := strconv.ParseComplex(vals[0], bz)
 				if err != nil {
-					return err
+					return
 				}
 				elem.Field(i).SetComplex(v)
 			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
@@ -135,7 +147,7 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 				}
 				v, err := strconv.ParseUint(vals[0], 10, bz)
 				if err != nil {
-					return err
+					return
 				}
 				elem.Field(i).SetUint(v)
 			case reflect.Array, reflect.Slice:
@@ -152,7 +164,7 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 			case reflect.Bool:
 				v, err := strconv.ParseBool(j)
 				if err != nil {
-					return err
+					return
 				}
 				elem.Field(i).SetBool(v)
 			case reflect.String:
@@ -171,7 +183,7 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 				}
 				v, err := strconv.ParseInt(j, 10, bz)
 				if err != nil {
-					return err
+					return
 				}
 				elem.Field(i).SetInt(v)
 			case reflect.Float32, reflect.Float64:
@@ -181,7 +193,7 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 				}
 				v, err := strconv.ParseFloat(j, bz)
 				if err != nil {
-					return err
+					return
 				}
 				elem.Field(i).SetFloat(v)
 			case reflect.Complex64, reflect.Complex128:
@@ -191,7 +203,7 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 				}
 				v, err := strconv.ParseComplex(j, bz)
 				if err != nil {
-					return err
+					return
 				}
 				elem.Field(i).SetComplex(v)
 			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
@@ -208,7 +220,7 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 				}
 				v, err := strconv.ParseUint(j, 10, bz)
 				if err != nil {
-					return err
+					return
 				}
 				elem.Field(i).SetUint(v)
 			case reflect.Array, reflect.Slice:
@@ -216,6 +228,4 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 			}
 		}
 	}
-
-	return nil
 }
