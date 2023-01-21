@@ -10,6 +10,11 @@ import (
 func ExtractParams(request *http.Request, dst any) {
 	str := reflect.ValueOf(dst)
 
+	if str.Kind() != reflect.Pointer &&
+		str.Elem().Kind() != reflect.Struct {
+		return
+	}
+
 	matchPath := str.Elem().FieldByName("XtractrPath").String()
 
 	if matchPath[:1] == "/" {
