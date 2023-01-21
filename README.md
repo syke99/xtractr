@@ -5,11 +5,11 @@ Xtractr helps keep code clean whenever extracting path and query parameters from
 Why use Xtractr?
 =====
 
-Sometimes, depending on how complex and endpoint is,you could potentially have a large number of parameters. Go's `net/http` also doesn't allow
+Sometimes, depending on how complex an endpoint is, you could potentially have a large number of parameters. Go's `net/http` also doesn't allow
 for very easy extraction of path parameters. And with the gorilla toolkit now being archived, one can't rely on using `gorilla/mux` to not eventually
 break and introduce bugs and vulnerabilities. With Xtractr, you can tackle both of these issues with relative ease, and also keep your code base
 nice and clean. Xtractr makes it simple to unmarshal these parameters directly to a struct by determining what parameter to look for for each struct
-field via a `json` tag, and where to fiend that parameter (in the path or query) via a `xtractr` tag
+field via a `json` tag, and where to find that parameter (in the path or query) via a `xtractr` tag
 
 How do I use Xtractr?
 =====
