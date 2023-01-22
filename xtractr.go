@@ -84,6 +84,25 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 			continue
 		}
 
+		if xtractrTag == "struct" {
+			num := field.Type.NumField()
+			sF := make([]reflect.StructField, num)
+			for i := 0; i < num; i++ {
+				fl := field.Type.Field(i)
+				f := reflect.StructField{
+					Name: fl.Name,
+					Type: fl.Type,
+					Tag:  fl.Tag,
+				}
+				sF[i] = f
+			}
+
+			ptr := reflect.New(reflect.StructOf(sF))
+			unmarshal(request, ptr, pathParams, false)
+
+			elem.Field(i).Set(reflect.ValueOf(ptr.Elem().Interface()))
+		}
+
 		if xtractrTag == "query" &&
 			elem.Field(i).CanSet() {
 

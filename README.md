@@ -39,9 +39,25 @@ type MyStruct struct {
 }
 ```
 
+You can even nest structs if you'd like, just simply give the `xtractr` tag the `struct` value and Xtractr 
+will recurse into that struct and unmarshal its defined parameters.
+
+```go
+type MyFirstStruct struct {
+    FieldOne    int    `json:"fieldOne" xtractr:"path"`
+    FieldTwo    string `json:"fieldTwo" xtractr:"query"`
+}
+
+type MySecondStruc struct {
+    Xtractr     string        `xtractr:"-"` // Xtractr only needs a `xtractr` tag with the value "-"
+    FieldOne    int           `json:"fieldOne" xtractr:"path"`
+    FieldTwo    MyFirstStruct `xtractr:"struct"`
+}
+```
+
 Once your struct has been defined, it's as simple as instantiating the struct, defining the exact path
 pattern to match, and passing the incoming http.Request pointer and a pointer to your defined struct 
-to `xtractr.ExtractParams()`
+to `xtractr.ExtractParams(request *http.Request, dst any)`
 
 ```go
 func HandlerFunc(w http.ResponseWriter, r *http.Request) {
