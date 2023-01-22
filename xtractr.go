@@ -70,20 +70,6 @@ func getMatchedPathParams(toMatch string, requested string) map[string]string {
 }
 
 func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]string, parent bool) {
-	//var elem reflect.Value
-	//
-	//println(str.Kind())
-	//
-	//if str.Kind() == reflect.Pointer &&
-	//	reflect.TypeOf(str.Elem().Interface()).Kind() == reflect.Struct &&
-	//	!parent {
-	//	s := reflect.ValueOf(str.Elem())
-	//
-	//	elem = s.Elem()
-	//} else {
-	//	elem = str.Elem()
-	//}
-
 	elem := str.Elem()
 
 	for i := 0; i < elem.Type().NumField(); i++ {
@@ -98,27 +84,36 @@ func unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 			continue
 		}
 
-		if xtractrTag == "struct" {
-			s := elem.Field(i).Interface()
-
-			ptr := reflect.PointerTo(reflect.TypeOf(s))
-
-			unmarshal(request, reflect.ValueOf(ptr), pathParams, false)
-		}
-
 		if xtractrTag == "query" &&
 			elem.Field(i).CanSet() {
 
 			vals := request.URL.Query()[jsonTag]
 
 			switch field.Type.Kind() {
-			case reflect.Struct:
-				switch elem.Field(i).Interface().(type) {
-				case time.Time:
-					time.Parse(tag.Get("xtractr-time"), vals[0])
-				default:
-					continue
-				}
+			// TODO: fix time fields and nested structs
+			//case reflect.Struct:
+			//	switch elem.Field(i).Interface().(type) {
+			//	case time.Time:
+			//		t, err := time.Parse(tag.Get("xtractr-time"), vals[0])
+			//		if err != nil {
+			//			println(err.Error())
+			//			return
+			//		}
+			//		elem.Field(i).Set(reflect.ValueOf(t))
+			//	case sql.NullTime:
+			//		t, err := time.Parse(tag.Get("xtractr-time"), vals[0])
+			//		if err != nil {
+			//			return
+			//		}
+			//
+			//		s := sql.NullTime{
+			//			Time:  t,
+			//			Valid: true,
+			//		}
+			//		elem.Field(i).Set(reflect.ValueOf(s))
+			//	default:
+			//		continue
+			//	}
 			case reflect.Bool:
 				b := false
 				if request.URL.Query().Has(jsonTag) &&
