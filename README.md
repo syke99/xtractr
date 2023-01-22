@@ -49,9 +49,9 @@ type MyFirstStruct struct {
 }
 
 type MySecondStruc struct {
-    Xtractr     string        `xtractr:"-"` // Xtractr only needs a `xtractr` tag with the value "-"
-    FieldOne    int           `json:"fieldOne" xtractr:"path"`
-    FieldTwo    MyFirstStruct `xtractr:"struct"`
+    Xtractr       string        `xtractr:"-"` // Xtractr only needs a `xtractr` tag with the value "-"
+    FieldThree    int           `json:"fieldThree" xtractr:"path"`
+    FieldFour     MyFirstStruct `xtractr:"struct"`
 }
 ```
 
