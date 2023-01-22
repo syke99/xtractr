@@ -33,7 +33,7 @@ path or query using the `xtractr` tag. Example:
 
 ```go
 type MyStruct struct {
-	Xtractr     string `xtractr:"-"` // XtractrPath only needs a `json` tag with the value "-"
+	Xtractr     string `xtractr:"-"` // Xtractr only needs a `xtractr` tag with the value "-"
 	FieldOne    int    `json:"fieldOne" xtractr:"path"`
 	FieldTwo    string `json:"fieldTwo" xtractr:"query"`
 }
@@ -63,7 +63,7 @@ import (
 )
 
 type MyStruct struct {
-	Xtractr     string `xtractr:"-"` // XtractrPath only needs a `json` tag with the value "-"
+	Xtractr     string `xtractr:"-"` // Xtractr only needs a `xtractr` tag with the value "-"
 	FieldOne    int    `json:"fieldOne" xtractr:"path"`
 	FieldTwo    string `json:"fieldTwo" xtractr:"query"`
 }
