@@ -3,7 +3,9 @@ package xtractr
 import (
 	"github.com/stretchr/testify/assert"
 	"net/http"
+	"strings"
 	"testing"
+	"time"
 )
 
 // TODO: implement tests for unsigned numbers
@@ -55,6 +57,7 @@ type TestStructThree struct {
 
 const testPath = "/{fieldOne}/{fieldTwo}/{fieldThree}/{fieldFour}/{fieldFive}/{fieldSix}/{fieldSeven}"
 const testPathTwo = "/{fieldThirteen}/{fieldFourteen}/{fieldFifteen}/{fieldSixteen}"
+const testPathFour = "/{thisOne}"
 
 func TestExtractParams_FirstStruct(t *testing.T) {
 	path := "/true/goodbye/1/2/3/4/5/?fieldSeventeen&fieldEighteen=hello&fieldNineteen=1&fieldTwenty=2&fieldTwentyOne=3&fieldTwentyTwo=4&fieldTwentyThree=5"
@@ -114,4 +117,31 @@ func TestExtractParams_SecondStuct(t *testing.T) {
 	for i, word := range params.FieldThirtyThree {
 		assert.Equal(t, strSlc[i], word)
 	}
+}
+
+type TestStructFour struct {
+	Xtractr string         `xtractr:"-"`
+	Time    time.Time      `json:"time" xtractr:"query" xtractr-time:"2006-12-01"`
+	Nested  TestStructFive `xtractr:"struct"`
+}
+
+type TestStructFive struct {
+	One string `json:"thisOne" xtractr:"path"`
+}
+
+func TestExtractParams_ForthStruct(t *testing.T) {
+	path := "/one?time=2020-08-20"
+
+	params := TestStructFour{
+		Xtractr: testPathFour,
+	}
+
+	timeFormat, _ := time.Parse(strings.Split(time.RFC3339, "T")[0], "2020-08-20")
+
+	request, _ := http.NewRequest(http.MethodGet, path, nil)
+
+	ExtractParams(request, &params)
+
+	assert.Equal(t, "one", params.Nested.One)
+	assert.Equal(t, timeFormat, params.Time)
 }
