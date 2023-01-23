@@ -1,4 +1,9 @@
 # Xtractr
+=====
+[![Go Reference](https://pkg.go.dev/badge/github.com/syke99/waggy.svg)](https://pkg.go.dev/github.com/syke99/waggy)
+[![Go Reportcard](https://goreportcard.com/badge/github.com/syke99/waggy)](https://goreportcard.com/report/github.com/syke99/waggy)
+[![codecov](https://codecov.io/gh/syke99/Xtractr/branch/main/graph/badge.svg?token=NAmOLNyTgw)](https://codecov.io/gh/syke99/Xtractr)
+[![LICENSE](https://img.shields.io/github/license/syke99/waggy)](https://pkg.go.dev/github.com/syke99/waggy/blob/master/LICENSE)
 Xtractr helps keep code clean whenever extracting path and query parameters from an incoming HTTP request
 
 
