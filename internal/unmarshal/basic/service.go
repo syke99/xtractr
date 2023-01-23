@@ -1,9 +1,11 @@
 package basic
 
 import (
+	"github.com/syke99/xtractr/internal/models"
 	"net/http"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -12,22 +14,69 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 	if xtractrTag == "query" &&
 		elem.Field(i).CanSet() {
 
-		vals := request.URL.Query()[jsonTag]
+		vals, ok := request.URL.Query()[jsonTag]
+		if !ok {
+			return
+		}
 
 		switch field.Type.Kind() {
-		// TODO: fix time fields
-		//case reflect.Struct:
-		//	switch elem.Field(i).Interface().(type) {
-		//	case time.Time:
-		//		t, err := time.Parse(tag.Get("xtractr-time"), vals[0])
-		//		if err != nil {
-		//			println(err.Error())
-		//			return
-		//		}
-		//		elem.Field(i).Set(reflect.ValueOf(t))
-		//	default:
-		//		continue
-		//	}
+		case reflect.Struct:
+			switch elem.Field(i).Interface().(type) {
+			case time.Time:
+				var t time.Time
+				var err error
+
+				format := tag.Get("xtractr-time")
+
+				layout := ""
+
+				if format == "" || format == "ISO8601" {
+					if format == "ISO8601" {
+						var year int
+						var month time.Month
+						var day int
+						var er error
+
+						tParts := strings.Split(vals[0], "-")
+
+						year, er = strconv.Atoi(tParts[0])
+						if er != nil {
+							return
+						}
+
+						m := 0
+						m, er = strconv.Atoi(tParts[1])
+						if er != nil {
+							return
+						}
+
+						month = time.Month(m)
+
+						day, er = strconv.Atoi(tParts[2])
+						if er != nil {
+							return
+						}
+
+						t = time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+					} else {
+						layout = time.Layout
+					}
+				}
+
+				if format != "" && format != "ISO8601" {
+					if f, ok := models.TimeLayouts()[format]; ok {
+						layout = f
+					}
+
+					t, err = time.Parse(layout, vals[0])
+					if err != nil {
+						return
+					}
+				}
+				elem.Field(i).Set(reflect.ValueOf(t))
+			default:
+				return
+			}
 		case reflect.Bool:
 			b := false
 			if request.URL.Query().Has(jsonTag) &&
@@ -108,13 +157,66 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 	if xtractrTag == "path" &&
 		elem.Field(i).CanSet() {
 
-		j := pathParams[jsonTag]
+		j, ok := pathParams[jsonTag]
+		if !ok {
+			return
+		}
 
 		switch field.Type.Kind() {
 		case reflect.Struct:
 			switch elem.Field(i).Interface().(type) {
 			case time.Time:
-				time.Parse(tag.Get("xtractr-time"), j)
+				var t time.Time
+				var err error
+
+				format := tag.Get("xtractr-time")
+
+				layout := ""
+
+				if format == "" || format == "ISO8601" {
+					if format == "ISO8601" {
+						var year int
+						var month time.Month
+						var day int
+						var er error
+
+						tParts := strings.Split(j, "-")
+
+						year, er = strconv.Atoi(tParts[0])
+						if er != nil {
+							return
+						}
+
+						m := 0
+						m, er = strconv.Atoi(tParts[1])
+						if er != nil {
+							return
+						}
+
+						month = time.Month(m)
+
+						day, er = strconv.Atoi(tParts[2])
+						if er != nil {
+							return
+						}
+
+						t = time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+					} else {
+						layout = time.Layout
+					}
+				}
+
+				if format != "" && format != "ISO8601" {
+					if f, ok := models.TimeLayouts()[format]; ok {
+						layout = f
+					}
+
+					t, err = time.Parse(layout, j)
+					if err != nil {
+						return
+					}
+				}
+				elem.Field(i).Set(reflect.ValueOf(t))
 			default:
 				return
 			}

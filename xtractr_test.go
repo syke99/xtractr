@@ -5,6 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
+	"time"
 )
 
 // TODO: implement tests for unsigned numbers
@@ -122,7 +123,7 @@ func TestExtractParams_SecondStuct(t *testing.T) {
 type TestStructFour struct {
 	Xtractr string         `xtractr:"-"`
 	Nested  TestStructFive `xtractr:"struct"`
-	//Time    time.Time      `json:"time" xtractr:"query" xtractr-time:"2006-12-01"`
+	Time    time.Time      `json:"time" xtractr:"query" xtractr-time:"ISO8601"`
 }
 
 type TestStructFive struct {
@@ -136,36 +137,38 @@ func TestExtractParams_ForthStruct(t *testing.T) {
 		Xtractr: testPathFour,
 	}
 
-	//timeFormat, _ := time.Parse(strings.Split(time.RFC3339, "T")[0], "2020-08-20")
+	tm := time.Date(2020, time.Month(12), 02, 0, 0, 0, 0, time.UTC)
 
 	request, _ := http.NewRequest(http.MethodGet, path, nil)
 
 	ExtractParams(request, &params)
 
 	assert.Equal(t, "one", params.Nested.One)
-	//assert.Equal(t, timeFormat, params.Time)
+	assert.Equal(t, tm, params.Time)
 }
 
-const testPathFive = "/{fieldOne}/{fieldThree}/{fieldFive}/{fieldSeven}/{fieldNine}/{fieldEleven}"
+const testPathFive = "/{fieldOne}/{fieldThree}/{fieldFive}/{fieldSeven}/{fieldNine}/{fieldEleven}/{fieldThirteen}"
 
 type SQLTestStruct struct {
-	Xtractr     string          `xtractr:"-"`
-	FieldOne    sql.NullBool    `json:"fieldOne" xtractr:"path,sql"`
-	FieldTwo    sql.NullBool    `json:"fieldTwo" xtractr:"query,sql"`
-	FieldThree  sql.NullString  `json:"fieldThree" xtractr:"path,sql"`
-	FieldFour   sql.NullString  `json:"fieldFour" xtractr:"query,sql"`
-	FieldFive   sql.NullInt16   `json:"fieldFive" xtractr:"path,sql"`
-	FieldSix    sql.NullInt16   `json:"fieldSix" xtractr:"query,sql"`
-	FieldSeven  sql.NullInt32   `json:"fieldSeven" xtractr:"path,sql"`
-	FieldEight  sql.NullInt32   `json:"fieldEight" xtractr:"query,sql"`
-	FieldNine   sql.NullInt64   `json:"fieldNine" xtractr:"path,sql"`
-	FieldTen    sql.NullInt64   `json:"fieldTen" xtractr:"query,sql"`
-	FieldEleven sql.NullFloat64 `json:"fieldEleven" xtractr:"path,sql"`
-	FieldTwelve sql.NullFloat64 `json:"fieldTwelve" xtractr:"query,sql"`
+	Xtractr       string          `xtractr:"-"`
+	FieldOne      sql.NullBool    `json:"fieldOne" xtractr:"path,sql"`
+	FieldTwo      sql.NullBool    `json:"fieldTwo" xtractr:"query,sql"`
+	FieldThree    sql.NullString  `json:"fieldThree" xtractr:"path,sql"`
+	FieldFour     sql.NullString  `json:"fieldFour" xtractr:"query,sql"`
+	FieldFive     sql.NullInt16   `json:"fieldFive" xtractr:"path,sql"`
+	FieldSix      sql.NullInt16   `json:"fieldSix" xtractr:"query,sql"`
+	FieldSeven    sql.NullInt32   `json:"fieldSeven" xtractr:"path,sql"`
+	FieldEight    sql.NullInt32   `json:"fieldEight" xtractr:"query,sql"`
+	FieldNine     sql.NullInt64   `json:"fieldNine" xtractr:"path,sql"`
+	FieldTen      sql.NullInt64   `json:"fieldTen" xtractr:"query,sql"`
+	FieldEleven   sql.NullFloat64 `json:"fieldEleven" xtractr:"path,sql"`
+	FieldTwelve   sql.NullFloat64 `json:"fieldTwelve" xtractr:"query,sql"`
+	FieldThirteen sql.NullTime    `json:"fieldThirteen" xtractr:"path,sql" xtractr-time:"ISO8601"`
+	FieldFourteen sql.NullTime    `json:"fieldFourteen" xtractr:"query,sql" xtractr-time:"ISO8601"`
 }
 
 func TestExtractParams_SQL(t *testing.T) {
-	path := "/false//1/2/3/4.0?fieldTwo&fieldFour=hello&fieldSix=5&fieldEight=6&fieldTen=7&fieldTwelve=8.1"
+	path := "/false//1/2/3/4.0/2022-12-01?fieldFourteen=2020-12-04&fieldTwo&fieldFour=hello&fieldSix=5&fieldEight=6&fieldTen=7&fieldTwelve=8.1"
 
 	params := SQLTestStruct{
 		Xtractr: testPathFive,
@@ -175,6 +178,13 @@ func TestExtractParams_SQL(t *testing.T) {
 
 	ExtractParams(request, &params)
 
+	// sql.NullTime
+	t13 := time.Date(2022, time.Month(12), 01, 0, 0, 0, 0, time.UTC)
+	assert.Equal(t, t13, params.FieldThirteen.Time)
+	assert.Equal(t, true, params.FieldThirteen.Valid)
+	t14 := time.Date(2020, time.Month(12), 04, 0, 0, 0, 0, time.UTC)
+	assert.Equal(t, t14, params.FieldFourteen.Time)
+	assert.Equal(t, true, params.FieldFourteen.Valid)
 	// sql.NullBool
 	assert.Equal(t, false, params.FieldOne.Bool)
 	assert.Equal(t, true, params.FieldOne.Valid)
@@ -205,5 +215,4 @@ func TestExtractParams_SQL(t *testing.T) {
 	assert.Equal(t, true, params.FieldEleven.Valid)
 	assert.Equal(t, float64(8.1), params.FieldTwelve.Float64)
 	assert.Equal(t, true, params.FieldTwelve.Valid)
-
 }

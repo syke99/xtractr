@@ -2,10 +2,12 @@ package sql
 
 import (
 	"database/sql"
+	"github.com/syke99/xtractr/internal/models"
 	"net/http"
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Value, field reflect.StructField, tag reflect.StructTag, pathParams map[string]string, jsonTag string) {
@@ -15,7 +17,10 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 	if xtractrTag == "query" &&
 		elem.Field(i).CanSet() {
 
-		vals := request.URL.Query()[jsonTag]
+		vals, ok := request.URL.Query()[jsonTag]
+		if !ok {
+			return
+		}
 
 		switch elem.Field(i).Interface().(type) {
 		case sql.NullBool:
@@ -85,18 +90,62 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 				Valid:   true,
 			}
 			elem.Field(i).Set(reflect.ValueOf(nf64))
-		//TODO: fix time fields
-		//case sql.NullTime:
-		//	t, err := time.Parse(tag.Get("xtractr-time"), vals[0])
-		//	if err != nil {
-		//		return
-		//	}
-		//
-		//	s := sql.NullTime{
-		//		Time:  t,
-		//		Valid: true,
-		//	}
-		//	elem.Field(i).Set(reflect.ValueOf(s))
+		case sql.NullTime:
+			var t time.Time
+			var err error
+
+			format := tag.Get("xtractr-time")
+
+			layout := ""
+
+			if format == "" || format == "ISO8601" {
+				if format == "ISO8601" {
+					var year int
+					var month time.Month
+					var day int
+					var er error
+
+					tParts := strings.Split(vals[0], "-")
+
+					year, er = strconv.Atoi(tParts[0])
+					if er != nil {
+						return
+					}
+
+					m := 0
+					m, er = strconv.Atoi(tParts[1])
+					if er != nil {
+						return
+					}
+
+					month = time.Month(m)
+
+					day, er = strconv.Atoi(tParts[2])
+					if er != nil {
+						return
+					}
+
+					t = time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+				} else {
+					layout = time.Layout
+				}
+			}
+
+			if format != "" && format != "ISO8601" {
+				if f, ok := models.TimeLayouts()[format]; ok {
+					layout = f
+				}
+
+				t, err = time.Parse(layout, vals[0])
+				if err != nil {
+					return
+				}
+			}
+			s := sql.NullTime{
+				Time:  t,
+				Valid: true,
+			}
+			elem.Field(i).Set(reflect.ValueOf(s))
 		default:
 			return
 		}
@@ -105,7 +154,10 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 	if xtractrTag == "path" &&
 		elem.Field(i).CanSet() {
 
-		j := pathParams[jsonTag]
+		j, ok := pathParams[jsonTag]
+		if !ok {
+			return
+		}
 
 		switch elem.Field(i).Interface().(type) {
 		case sql.NullBool:
@@ -175,18 +227,62 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 				Valid:   true,
 			}
 			elem.Field(i).Set(reflect.ValueOf(nf64))
-		//TODO: fix time fields
-		//case sql.NullTime:
-		//	t, err := time.Parse(tag.Get("xtractr-time"), vals[0])
-		//	if err != nil {
-		//		return
-		//	}
-		//
-		//	s := sql.NullTime{
-		//		Time:  t,
-		//		Valid: true,
-		//	}
-		//	elem.Field(i).Set(reflect.ValueOf(s))
+		case sql.NullTime:
+			var t time.Time
+			var err error
+
+			format := tag.Get("xtractr-time")
+
+			layout := ""
+
+			if format == "" || format == "ISO8601" {
+				if format == "ISO8601" {
+					var year int
+					var month time.Month
+					var day int
+					var er error
+
+					tParts := strings.Split(j, "-")
+
+					year, er = strconv.Atoi(tParts[0])
+					if er != nil {
+						return
+					}
+
+					m := 0
+					m, er = strconv.Atoi(tParts[1])
+					if er != nil {
+						return
+					}
+
+					month = time.Month(m)
+
+					day, er = strconv.Atoi(tParts[2])
+					if er != nil {
+						return
+					}
+
+					t = time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+				} else {
+					layout = time.Layout
+				}
+			}
+
+			if format != "" && format != "ISO8601" {
+				if f, ok := models.TimeLayouts()[format]; ok {
+					layout = f
+				}
+
+				t, err = time.Parse(layout, j)
+				if err != nil {
+					return
+				}
+			}
+			s := sql.NullTime{
+				Time:  t,
+				Valid: true,
+			}
+			elem.Field(i).Set(reflect.ValueOf(s))
 		default:
 			return
 		}

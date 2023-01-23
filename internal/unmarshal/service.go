@@ -43,6 +43,7 @@ func Unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 			Unmarshal(request, ptr, pathParams)
 
 			elem.Field(i).Set(reflect.ValueOf(ptr.Elem().Interface()))
+			continue
 		}
 
 		sqlType, err := DetermineSQL(xtractrTag)
