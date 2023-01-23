@@ -1,6 +1,7 @@
 package xtractr
 
 import (
+	"database/sql"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
@@ -143,4 +144,66 @@ func TestExtractParams_ForthStruct(t *testing.T) {
 
 	assert.Equal(t, "one", params.Nested.One)
 	//assert.Equal(t, timeFormat, params.Time)
+}
+
+const testPathFive = "/{fieldOne}/{fieldThree}/{fieldFive}/{fieldSeven}/{fieldNine}/{fieldEleven}"
+
+type SQLTestStruct struct {
+	Xtractr     string          `xtractr:"-"`
+	FieldOne    sql.NullBool    `json:"fieldOne" xtractr:"path,sql"`
+	FieldTwo    sql.NullBool    `json:"fieldTwo" xtractr:"query,sql"`
+	FieldThree  sql.NullString  `json:"fieldThree" xtractr:"path,sql"`
+	FieldFour   sql.NullString  `json:"fieldFour" xtractr:"query,sql"`
+	FieldFive   sql.NullInt16   `json:"fieldFive" xtractr:"path,sql"`
+	FieldSix    sql.NullInt16   `json:"fieldSix" xtractr:"query,sql"`
+	FieldSeven  sql.NullInt32   `json:"fieldSeven" xtractr:"path,sql"`
+	FieldEight  sql.NullInt32   `json:"fieldEight" xtractr:"query,sql"`
+	FieldNine   sql.NullInt64   `json:"fieldNine" xtractr:"path,sql"`
+	FieldTen    sql.NullInt64   `json:"fieldTen" xtractr:"query,sql"`
+	FieldEleven sql.NullFloat64 `json:"fieldEleven" xtractr:"path,sql"`
+	FieldTwelve sql.NullFloat64 `json:"fieldTwelve" xtractr:"query,sql"`
+}
+
+func TestExtractParams_SQL(t *testing.T) {
+	path := "/false//1/2/3/4.0?fieldTwo&fieldFour=hello&fieldSix=5&fieldEight=6&fieldTen=7&fieldTwelve=8.1"
+
+	params := SQLTestStruct{
+		Xtractr: testPathFive,
+	}
+
+	request, _ := http.NewRequest(http.MethodGet, path, nil)
+
+	ExtractParams(request, &params)
+
+	// sql.NullBool
+	assert.Equal(t, false, params.FieldOne.Bool)
+	assert.Equal(t, true, params.FieldOne.Valid)
+	assert.Equal(t, true, params.FieldTwo.Bool)
+	assert.Equal(t, true, params.FieldTwo.Valid)
+	// sql.NullString
+	assert.Equal(t, "", params.FieldThree.String)
+	assert.Equal(t, false, params.FieldThree.Valid)
+	assert.Equal(t, "hello", params.FieldFour.String)
+	assert.Equal(t, true, params.FieldFour.Valid)
+	// sql.NullInt16
+	assert.Equal(t, int16(1), params.FieldFive.Int16)
+	assert.Equal(t, true, params.FieldFive.Valid)
+	assert.Equal(t, int16(5), params.FieldSix.Int16)
+	assert.Equal(t, true, params.FieldSix.Valid)
+	// sql.NullInt32
+	assert.Equal(t, int32(2), params.FieldSeven.Int32)
+	assert.Equal(t, true, params.FieldSeven.Valid)
+	assert.Equal(t, int32(6), params.FieldEight.Int32)
+	assert.Equal(t, true, params.FieldEight.Valid)
+	// sql.NullInt64
+	assert.Equal(t, int64(3), params.FieldNine.Int64)
+	assert.Equal(t, true, params.FieldNine.Valid)
+	assert.Equal(t, int64(7), params.FieldTen.Int64)
+	assert.Equal(t, true, params.FieldTen.Valid)
+	// sql.NullFloat64
+	assert.Equal(t, float64(4.0), params.FieldEleven.Float64)
+	assert.Equal(t, true, params.FieldEleven.Valid)
+	assert.Equal(t, float64(8.1), params.FieldTwelve.Float64)
+	assert.Equal(t, true, params.FieldTwelve.Valid)
+
 }

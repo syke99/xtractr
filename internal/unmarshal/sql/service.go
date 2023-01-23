@@ -5,9 +5,12 @@ import (
 	"net/http"
 	"reflect"
 	"strconv"
+	"strings"
 )
 
 func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Value, field reflect.StructField, tag reflect.StructTag, pathParams map[string]string, jsonTag string) {
+
+	xtractrTag = strings.Split(xtractrTag, ",")[0]
 
 	if xtractrTag == "query" &&
 		elem.Field(i).CanSet() {
@@ -39,7 +42,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 		case sql.NullString:
 			ns := sql.NullString{
 				String: vals[0],
-				Valid:  false,
+				Valid:  true,
 			}
 			elem.Field(i).Set(reflect.ValueOf(ns))
 		case sql.NullInt16:
