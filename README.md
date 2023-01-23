@@ -55,6 +55,27 @@ type MySecondStruc struct {
 }
 ```
 
+Xtractr also suports time.Time (and sql.NullTime) fields. You just need to provide an additional `xtractr-time`
+tag to specify the format to be used (Xtractr defaults to Go's default time format):
+
+```go
+type MyStruct struct {
+    Xtractr      string    `xtractr:"-"` // Xtractr only needs a `xtractr` tag with the value "-"
+    TimeField    time.Time `json:"timeField" xtractr:"path" xtractr-time:"ISO80601"` // xtractr supports this (YYYY-MM-DD) ISO8601 format}
+```
+
+You can also use any SQL NullType (besides sql.NullByte) fields, just specify by appending `,sql` to the end
+of the value you supply in the `xtractr` tag
+
+```go
+type MyStruct struct {
+    Xtractr       string         `xtractr:"-"` // Xtractr only needs a `xtractr` tag with the value "-"
+    FieldOne      sql.NullTime   `json:"timeField" xtractr:"path,sql" xtractr-time:"ISO80601"` // xtractr supports this (YYYY-MM-DD) ISO8601 format
+    FieldTwo      sql.NullString `json:fieldTwo" xtractr:"path,sql"`
+    ...
+}
+```
+
 Once your struct has been defined, it's as simple as instantiating the struct, defining the exact path
 pattern to match, and passing the incoming http.Request pointer and a pointer to your defined struct 
 to `xtractr.ExtractParams(request *http.Request, dst any)`
