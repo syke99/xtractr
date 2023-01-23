@@ -15,7 +15,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 		vals := request.URL.Query()[jsonTag]
 
 		switch field.Type.Kind() {
-		// TODO: fix time fields and nested structs
+		// TODO: fix time fields
 		//case reflect.Struct:
 		//	switch elem.Field(i).Interface().(type) {
 		//	case time.Time:
@@ -25,17 +25,6 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 		//			return
 		//		}
 		//		elem.Field(i).Set(reflect.ValueOf(t))
-		//	case sql.NullTime:
-		//		t, err := time.Parse(tag.Get("xtractr-time"), vals[0])
-		//		if err != nil {
-		//			return
-		//		}
-		//
-		//		s := sql.NullTime{
-		//			Time:  t,
-		//			Valid: true,
-		//		}
-		//		elem.Field(i).Set(reflect.ValueOf(s))
 		//	default:
 		//		continue
 		//	}
