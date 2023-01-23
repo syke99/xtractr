@@ -56,8 +56,6 @@ type TestStructThree struct {
 }
 
 const testPath = "/{fieldOne}/{fieldTwo}/{fieldThree}/{fieldFour}/{fieldFive}/{fieldSix}/{fieldSeven}"
-const testPathTwo = "/{fieldThirteen}/{fieldFourteen}/{fieldFifteen}/{fieldSixteen}"
-const testPathFour = "/{thisOne}"
 
 func TestExtractParams_FirstStruct(t *testing.T) {
 	path := "/true/goodbye/1/2/3/4/5/?fieldSeventeen&fieldEighteen=hello&fieldNineteen=1&fieldTwenty=2&fieldTwentyOne=3&fieldTwentyTwo=4&fieldTwentyThree=5"
@@ -85,6 +83,8 @@ func TestExtractParams_FirstStruct(t *testing.T) {
 	assert.Equal(t, int32(4), params.FieldTwentyTwo)
 	assert.Equal(t, int64(5), params.FieldTwentyThree)
 }
+
+const testPathTwo = "/{fieldThirteen}/{fieldFourteen}/{fieldFifteen}/{fieldSixteen}"
 
 func TestExtractParams_SecondStuct(t *testing.T) {
 	path := "11.0/12.1/13i/14i?fieldTwentyNine=11.0&fieldThirty=12.1&fieldThirtyOne=13i&fieldThirtyTwo=14i&fieldThirtyThree=hello&fieldThirtyThree=world"
@@ -119,7 +119,6 @@ func TestExtractParams_SecondStuct(t *testing.T) {
 	}
 }
 
-// TODO: fix time nested struct fields
 type TestStructFour struct {
 	Xtractr string         `xtractr:"-"`
 	Nested  TestStructFive `xtractr:"struct"`
@@ -129,6 +128,8 @@ type TestStructFour struct {
 type TestStructFive struct {
 	One string `json:"thisOne" xtractr:"path"`
 }
+
+const testPathFour = "/{thisOne}"
 
 func TestExtractParams_ForthStruct(t *testing.T) {
 	path := "/one?time=2020-12-02"
