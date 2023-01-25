@@ -62,7 +62,8 @@ tag to specify the format to be used (Xtractr defaults to Go's default time form
 
 ```go
 type MyStruct struct {
-    TimeField    time.Time `xtractr:"path" xtractr-param:"timeField" xtractr-time:"ISO80601"` // xtractr supports this (YYYY-MM-DD) ISO8601 format}
+    TimeField    time.Time `xtractr:"path" xtractr-param:"timeField" xtractr-time:"ISO80601"` // xtractr supports this (YYYY-MM-DD) ISO8601 format
+}
 ```
 
 You can also use any SQL NullType (besides sql.NullByte) fields, just specify by appending `,sql` to the end
@@ -84,7 +85,7 @@ to your defined struct to `xtractr.ExtractParams(pattern string, request *http.R
 func HandlerFunc(w http.ResponseWriter, r *http.Request) {
 	params := MyStruct {}
 	
-	xtractr.ExtractParams(r, &params)
+	err := xtractr.ExtractParams("/{fieldOne}", request, &params)
 }
 ```
 
