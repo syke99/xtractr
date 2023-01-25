@@ -16,7 +16,7 @@ Sometimes, depending on how complex an endpoint is, you could potentially have a
 for very easy extraction of path parameters. And with the gorilla toolkit now being archived, one can't rely on using `gorilla/mux` to not eventually
 break and introduce bugs and vulnerabilities. With Xtractr, you can tackle both of these issues with relative ease, and also keep your code base
 nice and clean. Xtractr makes it simple to unmarshal these parameters directly to a struct by determining what parameter to look for for each struct
-field via a `json` tag, and where to find that parameter (in the path or query) via a `xtractr` tag
+field via an `xtractr-param` tag, and where to find that parameter (in the path or query) via an `xtractr` tag
 
 How do I use Xtractr?
 =====
@@ -33,16 +33,12 @@ Then, simply import Xtractr into your desired package(s)
 import "github.com/syke99/xtractr"
 ```
 
-After importing, define the struct you would like to unmarshal the parameters into. Here is where you
-can define the path pattern with path parameters to match against by defining a field in your struct
-named XtractrPath, as well as whether each subsequent struct field's value should be found in the request
-path or query using the `xtractr` tag. Example:
+After importing, define the struct you would like to unmarshal the parameters into. Example:
 
 ```go
 type MyStruct struct {
-	Xtractr     string `xtractr:"-"` // Xtractr only needs a `xtractr` tag with the value "-"
-	FieldOne    int    `json:"fieldOne" xtractr:"path"`
-	FieldTwo    string `json:"fieldTwo" xtractr:"query"`
+	FieldOne    int    `xtractr:"path" xtractr-param:"fieldOne"`
+	FieldTwo    string `xtractr:"query" xtractr-param:"fieldTwo"`
 }
 ```
 
@@ -51,13 +47,12 @@ will recurse into that struct and unmarshal its defined parameters.
 
 ```go
 type MyFirstStruct struct {
-    FieldOne    int    `json:"fieldOne" xtractr:"path"`
-    FieldTwo    string `json:"fieldTwo" xtractr:"query"`
+    FieldOne    int    `xtractr:"path" xtractr-param:"fieldOne"`
+    FieldTwo    string `xtractr:"query" xtractr-param:"fieldTwo"`
 }
 
 type MySecondStruc struct {
-    Xtractr       string        `xtractr:"-"` // Xtractr only needs a `xtractr` tag with the value "-"
-    FieldThree    int           `json:"fieldThree" xtractr:"path"`
+    FieldThree    int           `xtractr:"path" xtractr-param:"fieldThree"`
     FieldFour     MyFirstStruct `xtractr:"struct"`
 }
 ```
@@ -67,29 +62,27 @@ tag to specify the format to be used (Xtractr defaults to Go's default time form
 
 ```go
 type MyStruct struct {
-    Xtractr      string    `xtractr:"-"` // Xtractr only needs a `xtractr` tag with the value "-"
-    TimeField    time.Time `json:"timeField" xtractr:"path" xtractr-time:"ISO80601"` // xtractr supports this (YYYY-MM-DD) ISO8601 format}
+    TimeField    time.Time `xtractr:"path" xtractr-param:"timeField" xtractr-time:"ISO80601"` // xtractr supports this (YYYY-MM-DD) ISO8601 format}
 ```
 
 You can also use any SQL NullType (besides sql.NullByte) fields, just specify by appending `,sql` to the end
 of the value you supply in the `xtractr` tag
 
 ```go
-type MyStruct struct {
-    Xtractr       string         `xtractr:"-"` // Xtractr only needs a `xtractr` tag with the value "-"
-    FieldOne      sql.NullTime   `json:"timeField" xtractr:"path,sql" xtractr-time:"ISO80601"` // xtractr supports this (YYYY-MM-DD) ISO8601 format
-    FieldTwo      sql.NullString `json:fieldTwo" xtractr:"path,sql"`
+type MyStruct struct {// Xtractr only needs a `xtractr` tag with the value "-"
+    FieldOne      sql.NullTime   `xtractr:"path,sql" xtractr-param:"timeField" xtractr-time:"ISO80601"` // xtractr supports this (YYYY-MM-DD) ISO8601 format
+    FieldTwo      sql.NullString `xtractr:"path,sql" xtractr-param:"fieldTwo"`
     ...
 }
 ```
 
 Once your struct has been defined, it's as simple as instantiating the struct, defining the exact path
-pattern to match, and passing the incoming http.Request pointer and a pointer to your defined struct 
-to `xtractr.ExtractParams(request *http.Request, dst any)`
+pattern to match, and passing the path pattern to match, the incoming http.Request pointer and a pointer
+to your defined struct to `xtractr.ExtractParams(pattern string, request *http.Request, dst any)`
 
 ```go
 func HandlerFunc(w http.ResponseWriter, r *http.Request) {
-	params := MyStruct {Xtractr: "/{fieldOne}"}
+	params := MyStruct {}
 	
 	xtractr.ExtractParams(r, &params)
 }
@@ -104,16 +97,16 @@ import (
 	"fmt"
 	"github.com/syke99/xtractr"
 	"net/http"
+	"os"
 )
 
 type MyStruct struct {
-	Xtractr     string `xtractr:"-"` // Xtractr only needs a `xtractr` tag with the value "-"
-	FieldOne    int    `json:"fieldOne" xtractr:"path"`
-	FieldTwo    string `json:"fieldTwo" xtractr:"query"`
+	FieldOne int    `xtractr:"path" xtractr-param:"fieldOne"`
+	FieldTwo string `xtractr:"query" xtractr-param:"fieldTwo"`
 }
 
 func main() {
-	params := MyStruct{Xtractr: "/{fieldOne}"}
+	params := MyStruct{}
 
 	// Typically, one would use Xtractr in an Http.HandlerFunc
 	// but the focus of creating this new http Request is on
@@ -122,7 +115,11 @@ func main() {
 	// params.FieldTwo
 	request := http.NewRequest(http.MethodGet, "/1234?fieldTwo=hello", nil)
 
-	xtractr.ExtractParams(request, &params)
+	err := xtractr.ExtractParams("/{fieldOne}", request, &params)
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
 
 	fmt.Println(params.FieldOne) // prints 1234
 	fmt.Println(params.FieldTwo) // prints hello
