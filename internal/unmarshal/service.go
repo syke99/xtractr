@@ -7,7 +7,9 @@ import (
 	"reflect"
 )
 
-func Unmarshal(request *http.Request, str reflect.Value, pathParams map[string]string) {
+func Unmarshal(request *http.Request, str reflect.Value, pathParams map[string]string) error {
+	var err error
+
 	elem := str.Elem()
 
 	for i := 0; i < elem.Type().NumField(); i++ {
@@ -19,7 +21,7 @@ func Unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 
 		xtractrTag, ok := tag.Lookup("xtractr")
 		if !ok {
-			return
+			continue
 		}
 
 		if xtractrTag == "-" {
@@ -48,15 +50,17 @@ func Unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 
 		sqlType, err := DetermineSQL(xtractrTag)
 		if err != nil {
-			return
+			return err
 		}
 
 		switch sqlType {
 		case false:
-			basic.Unmarshal(i, request, xtractrTag, elem, field, tag, pathParams, jsonTag)
+			err = basic.Unmarshal(i, request, xtractrTag, elem, field, tag, pathParams, jsonTag)
 		case true:
-			sql.Unmarshal(i, request, xtractrTag, elem, field, tag, pathParams, jsonTag)
+			err = sql.Unmarshal(i, request, xtractrTag, elem, tag, pathParams, jsonTag)
 		}
 
 	}
+
+	return err
 }

@@ -1,6 +1,7 @@
 package basic
 
 import (
+	"errors"
 	"github.com/syke99/xtractr/internal/models"
 	"net/http"
 	"reflect"
@@ -9,14 +10,14 @@ import (
 	"time"
 )
 
-func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Value, field reflect.StructField, tag reflect.StructTag, pathParams map[string]string, jsonTag string) {
+func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Value, field reflect.StructField, tag reflect.StructTag, pathParams map[string]string, jsonTag string) error {
 
 	if xtractrTag == "query" &&
 		elem.Field(i).CanSet() {
 
 		vals, ok := request.URL.Query()[jsonTag]
 		if !ok {
-			return
+			return errors.New("parameter not found in query")
 		}
 
 		switch field.Type.Kind() {
@@ -41,20 +42,20 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 
 						year, er = strconv.Atoi(tParts[0])
 						if er != nil {
-							return
+							return er
 						}
 
 						m := 0
 						m, er = strconv.Atoi(tParts[1])
 						if er != nil {
-							return
+							return er
 						}
 
 						month = time.Month(m)
 
 						day, er = strconv.Atoi(tParts[2])
 						if er != nil {
-							return
+							return er
 						}
 
 						t = time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
@@ -70,12 +71,12 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 
 					t, err = time.Parse(layout, vals[0])
 					if err != nil {
-						return
+						return err
 					}
 				}
 				elem.Field(i).Set(reflect.ValueOf(t))
 			default:
-				return
+				return nil
 			}
 		case reflect.Bool:
 			b := false
@@ -83,7 +84,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 				request.URL.Query().Get(jsonTag) != "" {
 				v, err := strconv.ParseBool(vals[0])
 				if err != nil {
-					return
+					return err
 				}
 
 				b = v
@@ -111,7 +112,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 			}
 			v, err := strconv.ParseInt(vals[0], 10, bz)
 			if err != nil {
-				return
+				return err
 			}
 			elem.Field(i).SetInt(v)
 		case reflect.Float32, reflect.Float64:
@@ -121,7 +122,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 			}
 			v, err := strconv.ParseFloat(vals[0], bz)
 			if err != nil {
-				return
+				return err
 			}
 			elem.Field(i).SetFloat(v)
 		case reflect.Complex64, reflect.Complex128:
@@ -131,7 +132,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 			}
 			v, err := strconv.ParseComplex(vals[0], bz)
 			if err != nil {
-				return
+				return err
 			}
 			elem.Field(i).SetComplex(v)
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
@@ -148,7 +149,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 			}
 			v, err := strconv.ParseUint(vals[0], 10, bz)
 			if err != nil {
-				return
+				return err
 			}
 			elem.Field(i).SetUint(v)
 		}
@@ -159,7 +160,9 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 
 		j, ok := pathParams[jsonTag]
 		if !ok {
-			return
+			if !ok {
+				return errors.New("parameter not found in path")
+			}
 		}
 
 		switch field.Type.Kind() {
@@ -184,20 +187,20 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 
 						year, er = strconv.Atoi(tParts[0])
 						if er != nil {
-							return
+							return err
 						}
 
 						m := 0
 						m, er = strconv.Atoi(tParts[1])
 						if er != nil {
-							return
+							return err
 						}
 
 						month = time.Month(m)
 
 						day, er = strconv.Atoi(tParts[2])
 						if er != nil {
-							return
+							return err
 						}
 
 						t = time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
@@ -213,17 +216,17 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 
 					t, err = time.Parse(layout, j)
 					if err != nil {
-						return
+						return err
 					}
 				}
 				elem.Field(i).Set(reflect.ValueOf(t))
 			default:
-				return
+				return nil
 			}
 		case reflect.Bool:
 			v, err := strconv.ParseBool(j)
 			if err != nil {
-				return
+				return err
 			}
 			elem.Field(i).SetBool(v)
 		case reflect.String:
@@ -242,7 +245,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 			}
 			v, err := strconv.ParseInt(j, 10, bz)
 			if err != nil {
-				return
+				return err
 			}
 			elem.Field(i).SetInt(v)
 		case reflect.Float32, reflect.Float64:
@@ -252,7 +255,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 			}
 			v, err := strconv.ParseFloat(j, bz)
 			if err != nil {
-				return
+				return err
 			}
 			elem.Field(i).SetFloat(v)
 		case reflect.Complex64, reflect.Complex128:
@@ -262,7 +265,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 			}
 			v, err := strconv.ParseComplex(j, bz)
 			if err != nil {
-				return
+				return err
 			}
 			elem.Field(i).SetComplex(v)
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
@@ -279,11 +282,13 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 			}
 			v, err := strconv.ParseUint(j, 10, bz)
 			if err != nil {
-				return
+				return err
 			}
 			elem.Field(i).SetUint(v)
 		case reflect.Array, reflect.Slice:
 			elem.Set(reflect.ValueOf(j))
 		}
 	}
+
+	return nil
 }

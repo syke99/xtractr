@@ -1,18 +1,19 @@
 package xtractr
 
 import (
+	"errors"
 	"github.com/syke99/xtractr/internal"
 	"github.com/syke99/xtractr/internal/unmarshal"
 	"net/http"
 	"reflect"
 )
 
-func ExtractParams(request *http.Request, dst any) {
+func ExtractParams(request *http.Request, dst any) error {
 	str := reflect.ValueOf(dst)
 
 	if str.Kind() != reflect.Pointer &&
 		str.Elem().Kind() != reflect.Struct {
-		return
+		return errors.New("dst provided is not a valid pointer to a struct")
 	}
 
 	matchPath := str.Elem().FieldByName("Xtractr").String()
@@ -37,8 +38,8 @@ func ExtractParams(request *http.Request, dst any) {
 
 	pathParams := internal.GetMatchedPathParams(matchPath, reqPath)
 	if pathParams == nil {
-		return
+		return errors.New("error parsing path for parameters")
 	}
 
-	unmarshal.Unmarshal(request, str, pathParams)
+	return unmarshal.Unmarshal(request, str, pathParams)
 }

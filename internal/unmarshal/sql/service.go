@@ -2,6 +2,7 @@ package sql
 
 import (
 	"database/sql"
+	"errors"
 	"github.com/syke99/xtractr/internal/models"
 	"net/http"
 	"reflect"
@@ -10,7 +11,7 @@ import (
 	"time"
 )
 
-func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Value, field reflect.StructField, tag reflect.StructTag, pathParams map[string]string, jsonTag string) {
+func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Value, tag reflect.StructTag, pathParams map[string]string, jsonTag string) error {
 
 	xtractrTag = strings.Split(xtractrTag, ",")[0]
 
@@ -19,7 +20,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 
 		vals, ok := request.URL.Query()[jsonTag]
 		if !ok {
-			return
+			return errors.New("parameter not found in query")
 		}
 
 		switch elem.Field(i).Interface().(type) {
@@ -29,7 +30,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 				request.URL.Query().Get(jsonTag) != "" {
 				v, err := strconv.ParseBool(vals[0])
 				if err != nil {
-					return
+					return err
 				}
 
 				b = v
@@ -43,6 +44,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 				Bool:  b,
 				Valid: true,
 			}
+
 			elem.Field(i).Set(reflect.ValueOf(nb))
 		case sql.NullString:
 			ns := sql.NullString{
@@ -53,7 +55,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 		case sql.NullInt16:
 			v, err := strconv.ParseInt(vals[0], 10, 16)
 			if err != nil {
-				return
+				return err
 			}
 			ni16 := sql.NullInt16{
 				Int16: int16(v),
@@ -63,7 +65,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 		case sql.NullInt32:
 			v, err := strconv.ParseInt(vals[0], 10, 32)
 			if err != nil {
-				return
+				return err
 			}
 			ni32 := sql.NullInt32{
 				Int32: int32(v),
@@ -73,7 +75,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 		case sql.NullInt64:
 			v, err := strconv.ParseInt(vals[0], 10, 64)
 			if err != nil {
-				return
+				return err
 			}
 			ni64 := sql.NullInt64{
 				Int64: v,
@@ -83,7 +85,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 		case sql.NullFloat64:
 			v, err := strconv.ParseFloat(vals[0], 64)
 			if err != nil {
-				return
+				return err
 			}
 			nf64 := sql.NullFloat64{
 				Float64: v,
@@ -109,20 +111,20 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 
 					year, er = strconv.Atoi(tParts[0])
 					if er != nil {
-						return
+						return err
 					}
 
 					m := 0
 					m, er = strconv.Atoi(tParts[1])
 					if er != nil {
-						return
+						return err
 					}
 
 					month = time.Month(m)
 
 					day, er = strconv.Atoi(tParts[2])
 					if er != nil {
-						return
+						return err
 					}
 
 					t = time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
@@ -138,7 +140,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 
 				t, err = time.Parse(layout, vals[0])
 				if err != nil {
-					return
+					return err
 				}
 			}
 			s := sql.NullTime{
@@ -147,7 +149,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 			}
 			elem.Field(i).Set(reflect.ValueOf(s))
 		default:
-			return
+			return nil
 		}
 	}
 
@@ -156,7 +158,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 
 		j, ok := pathParams[jsonTag]
 		if !ok {
-			return
+			return errors.New("parameter not found in path")
 		}
 
 		switch elem.Field(i).Interface().(type) {
@@ -166,7 +168,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 				request.URL.Query().Get(jsonTag) != "" {
 				v, err := strconv.ParseBool(j)
 				if err != nil {
-					return
+					return err
 				}
 
 				b = v
@@ -190,7 +192,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 		case sql.NullInt16:
 			v, err := strconv.ParseInt(j, 10, 16)
 			if err != nil {
-				return
+				return err
 			}
 			ni16 := sql.NullInt16{
 				Int16: int16(v),
@@ -200,7 +202,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 		case sql.NullInt32:
 			v, err := strconv.ParseInt(j, 10, 32)
 			if err != nil {
-				return
+				return err
 			}
 			ni32 := sql.NullInt32{
 				Int32: int32(v),
@@ -210,7 +212,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 		case sql.NullInt64:
 			v, err := strconv.ParseInt(j, 10, 64)
 			if err != nil {
-				return
+				return err
 			}
 			ni64 := sql.NullInt64{
 				Int64: v,
@@ -220,7 +222,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 		case sql.NullFloat64:
 			v, err := strconv.ParseFloat(j, 64)
 			if err != nil {
-				return
+				return err
 			}
 			nf64 := sql.NullFloat64{
 				Float64: v,
@@ -246,20 +248,20 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 
 					year, er = strconv.Atoi(tParts[0])
 					if er != nil {
-						return
+						return err
 					}
 
 					m := 0
 					m, er = strconv.Atoi(tParts[1])
 					if er != nil {
-						return
+						return err
 					}
 
 					month = time.Month(m)
 
 					day, er = strconv.Atoi(tParts[2])
 					if er != nil {
-						return
+						return err
 					}
 
 					t = time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
@@ -275,7 +277,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 
 				t, err = time.Parse(layout, j)
 				if err != nil {
-					return
+					return err
 				}
 			}
 			s := sql.NullTime{
@@ -284,7 +286,9 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 			}
 			elem.Field(i).Set(reflect.ValueOf(s))
 		default:
-			return
+			return nil
 		}
 	}
+
+	return nil
 }
