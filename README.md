@@ -69,7 +69,7 @@ You can also use any SQL NullType (besides sql.NullByte) fields, just specify by
 of the value you supply in the `xtractr` tag
 
 ```go
-type MyStruct struct {// Xtractr only needs a `xtractr` tag with the value "-"
+type MyStruct struct {
     FieldOne      sql.NullTime   `xtractr:"path,sql" xtractr-param:"timeField" xtractr-time:"ISO80601"` // xtractr supports this (YYYY-MM-DD) ISO8601 format
     FieldTwo      sql.NullString `xtractr:"path,sql" xtractr-param:"fieldTwo"`
     ...
