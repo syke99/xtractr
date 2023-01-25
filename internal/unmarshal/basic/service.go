@@ -10,12 +10,12 @@ import (
 	"time"
 )
 
-func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Value, field reflect.StructField, tag reflect.StructTag, pathParams map[string]string, jsonTag string) error {
+func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Value, field reflect.StructField, tag reflect.StructTag, pathParams map[string]string, param string) error {
 
 	if xtractrTag == "query" &&
 		elem.Field(i).CanSet() {
 
-		vals, ok := request.URL.Query()[jsonTag]
+		vals, ok := request.URL.Query()[param]
 		if !ok {
 			return errors.New("parameter not found in query")
 		}
@@ -80,8 +80,8 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 			}
 		case reflect.Bool:
 			b := false
-			if request.URL.Query().Has(jsonTag) &&
-				request.URL.Query().Get(jsonTag) != "" {
+			if request.URL.Query().Has(param) &&
+				request.URL.Query().Get(param) != "" {
 				v, err := strconv.ParseBool(vals[0])
 				if err != nil {
 					return err
@@ -90,8 +90,8 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 				b = v
 			}
 
-			if request.URL.Query().Has(jsonTag) &&
-				request.URL.Query().Get(jsonTag) == "" {
+			if request.URL.Query().Has(param) &&
+				request.URL.Query().Get(param) == "" {
 				b = true
 			}
 
@@ -158,7 +158,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 	if xtractrTag == "path" &&
 		elem.Field(i).CanSet() {
 
-		j, ok := pathParams[jsonTag]
+		j, ok := pathParams[param]
 		if !ok {
 			if !ok {
 				return errors.New("parameter not found in path")

@@ -11,14 +11,14 @@ import (
 	"time"
 )
 
-func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Value, tag reflect.StructTag, pathParams map[string]string, jsonTag string) error {
+func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Value, tag reflect.StructTag, pathParams map[string]string, param string) error {
 
 	xtractrTag = strings.Split(xtractrTag, ",")[0]
 
 	if xtractrTag == "query" &&
 		elem.Field(i).CanSet() {
 
-		vals, ok := request.URL.Query()[jsonTag]
+		vals, ok := request.URL.Query()[param]
 		if !ok {
 			return errors.New("parameter not found in query")
 		}
@@ -26,8 +26,8 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 		switch elem.Field(i).Interface().(type) {
 		case sql.NullBool:
 			b := false
-			if request.URL.Query().Has(jsonTag) &&
-				request.URL.Query().Get(jsonTag) != "" {
+			if request.URL.Query().Has(param) &&
+				request.URL.Query().Get(param) != "" {
 				v, err := strconv.ParseBool(vals[0])
 				if err != nil {
 					return err
@@ -36,8 +36,8 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 				b = v
 			}
 
-			if request.URL.Query().Has(jsonTag) &&
-				request.URL.Query().Get(jsonTag) == "" {
+			if request.URL.Query().Has(param) &&
+				request.URL.Query().Get(param) == "" {
 				b = true
 			}
 			nb := sql.NullBool{
@@ -156,7 +156,7 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 	if xtractrTag == "path" &&
 		elem.Field(i).CanSet() {
 
-		j, ok := pathParams[jsonTag]
+		j, ok := pathParams[param]
 		if !ok {
 			return errors.New("parameter not found in path")
 		}
@@ -164,8 +164,8 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 		switch elem.Field(i).Interface().(type) {
 		case sql.NullBool:
 			b := false
-			if request.URL.Query().Has(jsonTag) &&
-				request.URL.Query().Get(jsonTag) != "" {
+			if request.URL.Query().Has(param) &&
+				request.URL.Query().Get(param) != "" {
 				v, err := strconv.ParseBool(j)
 				if err != nil {
 					return err
@@ -174,8 +174,8 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 				b = v
 			}
 
-			if request.URL.Query().Has(jsonTag) &&
-				request.URL.Query().Get(jsonTag) == "" {
+			if request.URL.Query().Has(param) &&
+				request.URL.Query().Get(param) == "" {
 				b = true
 			}
 			nb := sql.NullBool{

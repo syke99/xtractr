@@ -15,7 +15,7 @@ func DetermineSQL(xtractrTag string) (bool, error) {
 	}
 
 	if len(xTags) == 1 && xTags[0] == "sql" {
-		return false, errors.New("")
+		return false, errors.New("sql type specified without location of parameter")
 	}
 
 	if len(xTags) == 1 {
@@ -39,5 +39,5 @@ func verifyValues(xTags []string) error {
 			return nil
 		}
 	}
-	return errors.New("")
+	return errors.New("incorrect xtractr value(s) provided")
 }

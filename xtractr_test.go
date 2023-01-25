@@ -8,51 +8,47 @@ import (
 	"time"
 )
 
-// TODO: implement tests for unsigned numbers
-
 type TestStruct struct {
-	Xtractr          string `xtractr:"-"`
-	FieldOne         bool   `json:"fieldOne" xtractr:"path"`
-	FieldTwo         string `json:"fieldTwo" xtractr:"path"`
-	FieldThree       int    `json:"fieldThree" xtractr:"path"`
-	FieldFour        int8   `json:"fieldFour" xtractr:"path"`
-	FieldFive        int16  `json:"fieldFive" xtractr:"path"`
-	FieldSix         int32  `json:"fieldSix" xtractr:"path"`
-	FieldSeven       int64  `json:"fieldSeven" xtractr:"path"`
-	FieldSeventeen   bool   `json:"fieldSeventeen" xtractr:"query"`
-	FieldEighteen    string `json:"fieldEighteen" xtractr:"query"`
-	FieldNineteen    int    `json:"fieldNineteen" xtractr:"query"`
-	FieldTwenty      int8   `json:"fieldTwenty" xtractr:"query"`
-	FieldTwentyOne   int16  `json:"fieldTwentyOne" xtractr:"query"`
-	FieldTwentyTwo   int32  `json:"fieldTwentyTwo" xtractr:"query"`
-	FieldTwentyThree int64  `json:"fieldTwentyThree" xtractr:"query"`
+	FieldOne         bool   `xtractr:"path" xtractr-param:"fieldOne"`
+	FieldTwo         string `xtractr:"path" xtractr-param:"fieldTwo"`
+	FieldThree       int    `xtractr:"path" xtractr-param:"fieldThree"`
+	FieldFour        int8   `xtractr:"path" xtractr-param:"fieldFour"`
+	FieldFive        int16  `xtractr:"path" xtractr-param:"fieldFive"`
+	FieldSix         int32  `xtractr:"path" xtractr-param:"fieldSix"`
+	FieldSeven       int64  `xtractr:"path" xtractr-param:"fieldSeven"`
+	FieldSeventeen   bool   `xtractr:"query" xtractr-param:"fieldSeventeen"`
+	FieldEighteen    string `xtractr:"query" xtractr-param:"fieldEighteen"`
+	FieldNineteen    int    `xtractr:"query" xtractr-param:"fieldNineteen"`
+	FieldTwenty      int8   `xtractr:"query" xtractr-param:"fieldTwenty"`
+	FieldTwentyOne   int16  `xtractr:"query" xtractr-param:"fieldTwentyOne"`
+	FieldTwentyTwo   int32  `xtractr:"query" xtractr-param:"fieldTwentyTwo"`
+	FieldTwentyThree int64  `xtractr:"query" xtractr-param:"fieldTwentyThree"`
 }
 
 type TestStructTwo struct {
-	Xtractr          string     `xtractr:"-"`
-	FieldThirteen    float32    `json:"fieldThirteen" xtractr:"path"`
-	FieldFourteen    float64    `json:"fieldFourteen" xtractr:"path"`
-	FieldFifteen     complex64  `json:"fieldFifteen" xtractr:"path"`
-	FieldSixteen     complex128 `json:"fieldSixteen" xtractr:"path"`
-	FieldTwentyNine  float32    `json:"fieldTwentyNine" xtractr:"query"`
-	FieldThirty      float64    `json:"fieldThirty" xtractr:"query"`
-	FieldThirtyOne   complex64  `json:"fieldThirtyOne" xtractr:"query"`
-	FieldThirtyTwo   complex128 `json:"fieldThirtyTwo" xtractr:"query"`
-	FieldThirtyThree []string   `json:"fieldThirtyThree" xtractr:"query"`
+	FieldThirteen    float32    `xtractr:"path" xtractr-param:"fieldThirteen"`
+	FieldFourteen    float64    `xtractr:"path" xtractr-param:"fieldFourteen"`
+	FieldFifteen     complex64  `xtractr:"path" xtractr-param:"fieldFifteen"`
+	FieldSixteen     complex128 `xtractr:"path" xtractr-param:"fieldSixteen"`
+	FieldTwentyNine  float32    `xtractr:"query" xtractr-param:"fieldTwentyNine"`
+	FieldThirty      float64    `xtractr:"query" xtractr-param:"fieldThirty"`
+	FieldThirtyOne   complex64  `xtractr:"query" xtractr-param:"fieldThirtyOne"`
+	FieldThirtyTwo   complex128 `xtractr:"query" xtractr-param:"fieldThirtyTwo"`
+	FieldThirtyThree []string   `xtractr:"query" xtractr-param:"fieldThirtyThree"`
 }
 
+// TODO: implement tests for unsigned numbers
 type TestStructThree struct {
-	Xtractr          string `xtractr:"-"`
-	FieldEight       uint   `json:"fieldEight" xtractr:"path"`
-	FieldNine        uint8  `json:"fieldNine" xtractr:"path"`
-	FieldTen         uint16 `json:"fieldTen" xtractr:"path"`
-	FieldEleven      uint32 `json:"fieldEleven" xtractr:"path"`
-	FieldTwelve      uint64 `json:"fieldTwelve" xtractr:"path"`
-	FieldTwentyFour  uint   `json:"fieldTwentyFour" xtractr:"query"`
-	FieldTwentyFive  uint8  `json:"fieldTwentyFive" xtractr:"query"`
-	FieldTwentySix   uint16 `json:"fieldTwentySix" xtractr:"query"`
-	FieldTwentySeven uint32 `json:"fieldTwentySeven" xtractr:"query"`
-	FieldTwentyEight uint64 `json:"fieldTwentyEight" xtractr:"query"`
+	FieldEight       uint   `xtractr:"path" xtractr-param:"fieldEight"`
+	FieldNine        uint8  `xtractr:"path" xtractr-param:"fieldNine"`
+	FieldTen         uint16 `xtractr:"path" xtractr-param:"fieldTen"`
+	FieldEleven      uint32 `xtractr:"path" xtractr-param:"fieldEleven"`
+	FieldTwelve      uint64 `xtractr:"path" xtractr-param:"fieldTwelve"`
+	FieldTwentyFour  uint   `xtractr:"query" xtractr-param:"fieldTwentyFour"`
+	FieldTwentyFive  uint8  `xtractr:"query" xtractr-param:"fieldTwentyFive"`
+	FieldTwentySix   uint16 `xtractr:"query" xtractr-param:"fieldTwentySix"`
+	FieldTwentySeven uint32 `xtractr:"query" xtractr-param:"fieldTwentySeven"`
+	FieldTwentyEight uint64 `xtractr:"query" xtractr-param:"fieldTwentyEight"`
 }
 
 const testPath = "/{fieldOne}/{fieldTwo}/{fieldThree}/{fieldFour}/{fieldFive}/{fieldSix}/{fieldSeven}"
@@ -60,13 +56,11 @@ const testPath = "/{fieldOne}/{fieldTwo}/{fieldThree}/{fieldFour}/{fieldFive}/{f
 func TestExtractParams_FirstStruct(t *testing.T) {
 	path := "/true/goodbye/1/2/3/4/5/?fieldSeventeen&fieldEighteen=hello&fieldNineteen=1&fieldTwenty=2&fieldTwentyOne=3&fieldTwentyTwo=4&fieldTwentyThree=5"
 
-	params := TestStruct{
-		Xtractr: testPath,
-	}
+	params := TestStruct{}
 
 	request, _ := http.NewRequest(http.MethodGet, path, nil)
 
-	ExtractParams(request, &params)
+	ExtractParams(testPath, request, &params)
 
 	assert.Equal(t, true, params.FieldOne)
 	assert.Equal(t, "goodbye", params.FieldTwo)
@@ -89,13 +83,11 @@ const testPathTwo = "/{fieldThirteen}/{fieldFourteen}/{fieldFifteen}/{fieldSixte
 func TestExtractParams_SecondStuct(t *testing.T) {
 	path := "11.0/12.1/13i/14i?fieldTwentyNine=11.0&fieldThirty=12.1&fieldThirtyOne=13i&fieldThirtyTwo=14i&fieldThirtyThree=hello&fieldThirtyThree=world"
 
-	params := TestStructTwo{
-		Xtractr: testPathTwo,
-	}
+	params := TestStructTwo{}
 
 	request, _ := http.NewRequest(http.MethodGet, path, nil)
 
-	ExtractParams(request, &params)
+	ExtractParams(testPathTwo, request, &params)
 
 	var complexThirteen complex64 = 0 + 13i
 
@@ -120,13 +112,12 @@ func TestExtractParams_SecondStuct(t *testing.T) {
 }
 
 type TestStructFour struct {
-	Xtractr string         `xtractr:"-"`
-	Nested  TestStructFive `xtractr:"struct"`
-	Time    time.Time      `json:"time" xtractr:"query" xtractr-time:"ISO8601"`
+	Nested TestStructFive `xtractr:"struct"`
+	Time   time.Time      `xtractr:"query" xtractr-param:"time" xtractr-time:"ISO8601"`
 }
 
 type TestStructFive struct {
-	One string `json:"thisOne" xtractr:"path"`
+	One string `xtractr:"path" xtractr-param:"thisOne"`
 }
 
 const testPathFour = "/{thisOne}"
@@ -134,15 +125,13 @@ const testPathFour = "/{thisOne}"
 func TestExtractParams_ForthStruct(t *testing.T) {
 	path := "/one?time=2020-12-02"
 
-	params := TestStructFour{
-		Xtractr: testPathFour,
-	}
+	params := TestStructFour{}
 
 	tm := time.Date(2020, time.Month(12), 02, 0, 0, 0, 0, time.UTC)
 
 	request, _ := http.NewRequest(http.MethodGet, path, nil)
 
-	ExtractParams(request, &params)
+	ExtractParams(testPathFour, request, &params)
 
 	assert.Equal(t, "one", params.Nested.One)
 	assert.Equal(t, tm, params.Time)
@@ -151,33 +140,30 @@ func TestExtractParams_ForthStruct(t *testing.T) {
 const testPathFive = "/{fieldOne}/{fieldThree}/{fieldFive}/{fieldSeven}/{fieldNine}/{fieldEleven}/{fieldThirteen}"
 
 type SQLTestStruct struct {
-	Xtractr       string          `xtractr:"-"`
-	FieldOne      sql.NullBool    `json:"fieldOne" xtractr:"path,sql"`
-	FieldTwo      sql.NullBool    `json:"fieldTwo" xtractr:"query,sql"`
-	FieldThree    sql.NullString  `json:"fieldThree" xtractr:"path,sql"`
-	FieldFour     sql.NullString  `json:"fieldFour" xtractr:"query,sql"`
-	FieldFive     sql.NullInt16   `json:"fieldFive" xtractr:"path,sql"`
-	FieldSix      sql.NullInt16   `json:"fieldSix" xtractr:"query,sql"`
-	FieldSeven    sql.NullInt32   `json:"fieldSeven" xtractr:"path,sql"`
-	FieldEight    sql.NullInt32   `json:"fieldEight" xtractr:"query,sql"`
-	FieldNine     sql.NullInt64   `json:"fieldNine" xtractr:"path,sql"`
-	FieldTen      sql.NullInt64   `json:"fieldTen" xtractr:"query,sql"`
-	FieldEleven   sql.NullFloat64 `json:"fieldEleven" xtractr:"path,sql"`
-	FieldTwelve   sql.NullFloat64 `json:"fieldTwelve" xtractr:"query,sql"`
-	FieldThirteen sql.NullTime    `json:"fieldThirteen" xtractr:"path,sql" xtractr-time:"ISO8601"`
-	FieldFourteen sql.NullTime    `json:"fieldFourteen" xtractr:"query,sql" xtractr-time:"ISO8601"`
+	FieldOne      sql.NullBool    `xtractr:"path,sql" xtractr-param:"fieldOne"`
+	FieldTwo      sql.NullBool    `xtractr:"query,sql" xtractr-param:"fieldTwo"`
+	FieldThree    sql.NullString  `xtractr:"path,sql" xtractr-param:"fieldThree"`
+	FieldFour     sql.NullString  `xtractr:"query,sql" xtractr-param:"fieldFour"`
+	FieldFive     sql.NullInt16   `xtractr:"path,sql" xtractr-param:"fieldFive"`
+	FieldSix      sql.NullInt16   `xtractr:"query,sql" xtractr-param:"fieldSix"`
+	FieldSeven    sql.NullInt32   `xtractr:"path,sql" xtractr-param:"fieldSeven"`
+	FieldEight    sql.NullInt32   `xtractr:"query,sql" xtractr-param:"fieldEight"`
+	FieldNine     sql.NullInt64   `xtractr:"path,sql" xtractr-param:"fieldNine"`
+	FieldTen      sql.NullInt64   `xtractr:"query,sql" xtractr-param:"fieldTen"`
+	FieldEleven   sql.NullFloat64 `xtractr:"path,sql" xtractr-param:"fieldEleven"`
+	FieldTwelve   sql.NullFloat64 `xtractr:"query,sql" xtractr-param:"fieldTwelve"`
+	FieldThirteen sql.NullTime    `xtractr:"path,sql" xtractr-param:"fieldThirteen" xtractr-time:"ISO8601"`
+	FieldFourteen sql.NullTime    `xtractr:"query,sql" xtractr-param:"fieldFourteen" xtractr-time:"ISO8601"`
 }
 
 func TestExtractParams_SQL(t *testing.T) {
 	path := "/false//1/2/3/4.0/2022-12-01?fieldFourteen=2020-12-04&fieldTwo&fieldFour=hello&fieldSix=5&fieldEight=6&fieldTen=7&fieldTwelve=8.1"
 
-	params := SQLTestStruct{
-		Xtractr: testPathFive,
-	}
+	params := SQLTestStruct{}
 
 	request, _ := http.NewRequest(http.MethodGet, path, nil)
 
-	ExtractParams(request, &params)
+	ExtractParams(testPathFive, request, &params)
 
 	// sql.NullTime
 	t13 := time.Date(2022, time.Month(12), 01, 0, 0, 0, 0, time.UTC)

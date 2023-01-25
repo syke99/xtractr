@@ -8,7 +8,11 @@ import (
 	"reflect"
 )
 
-func ExtractParams(request *http.Request, dst any) error {
+// ExtractParams takes a pattern of the path to match parameters against,
+// the incoming *http.Request, and a pointer to the struct you would like
+// to unmarshal to (dst), extracts all parameters for the request path
+// and query, and unmarshals them to dst
+func ExtractParams(pattern string, request *http.Request, dst any) error {
 	str := reflect.ValueOf(dst)
 
 	if str.Kind() != reflect.Pointer &&
@@ -16,14 +20,12 @@ func ExtractParams(request *http.Request, dst any) error {
 		return errors.New("dst provided is not a valid pointer to a struct")
 	}
 
-	matchPath := str.Elem().FieldByName("Xtractr").String()
-
-	if matchPath[:1] == "/" {
-		matchPath = matchPath[1:]
+	if pattern[:1] == "/" {
+		pattern = pattern[1:]
 	}
 
-	if matchPath[len(matchPath)-1:] == "/" {
-		matchPath = matchPath[:len(matchPath)-1]
+	if pattern[len(pattern)-1:] == "/" {
+		pattern = pattern[:len(pattern)-1]
 	}
 
 	reqPath := request.URL.Path
@@ -36,7 +38,7 @@ func ExtractParams(request *http.Request, dst any) error {
 		reqPath = reqPath[:len(reqPath)-1]
 	}
 
-	pathParams := internal.GetMatchedPathParams(matchPath, reqPath)
+	pathParams := internal.GetMatchedPathParams(pattern, reqPath)
 	if pathParams == nil {
 		return errors.New("error parsing path for parameters")
 	}

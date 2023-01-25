@@ -17,14 +17,10 @@ func Unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 		field := elem.Type().Field(i)
 		tag := field.Tag
 
-		jsonTag := tag.Get("json")
+		param := tag.Get("xtractr-param")
 
 		xtractrTag, ok := tag.Lookup("xtractr")
 		if !ok {
-			continue
-		}
-
-		if xtractrTag == "-" {
 			continue
 		}
 
@@ -42,7 +38,10 @@ func Unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 			}
 
 			ptr := reflect.New(reflect.StructOf(sF))
-			Unmarshal(request, ptr, pathParams)
+			err := Unmarshal(request, ptr, pathParams)
+			if err != nil {
+				continue
+			}
 
 			elem.Field(i).Set(reflect.ValueOf(ptr.Elem().Interface()))
 			continue
@@ -55,9 +54,9 @@ func Unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 
 		switch sqlType {
 		case false:
-			err = basic.Unmarshal(i, request, xtractrTag, elem, field, tag, pathParams, jsonTag)
+			err = basic.Unmarshal(i, request, xtractrTag, elem, field, tag, pathParams, param)
 		case true:
-			err = sql.Unmarshal(i, request, xtractrTag, elem, tag, pathParams, jsonTag)
+			err = sql.Unmarshal(i, request, xtractrTag, elem, tag, pathParams, param)
 		}
 
 	}
