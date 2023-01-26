@@ -1,6 +1,8 @@
 package internal
 
 import (
+	"errors"
+	"fmt"
 	"github.com/syke99/xtractr/internal/unmarshal"
 	"net/http"
 	"reflect"
@@ -53,5 +55,9 @@ func GetMatchedPathParams(toMatch string, requested string) map[string]string {
 }
 
 func Unmarshal(request *http.Request, str reflect.Value, pathParams map[string]string) error {
-	return unmarshal.Unmarshal(request, str, pathParams)
+	err := unmarshal.Unmarshal(request, str, pathParams)
+	if err != nil {
+		err = errors.New(fmt.Sprintf("failed to unmarshal fields (%s)", err.Error()))
+	}
+	return err
 }
