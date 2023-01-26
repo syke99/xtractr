@@ -1,9 +1,8 @@
 package xtractr
 
 import (
-	"errors"
 	"github.com/syke99/xtractr/internal"
-	"github.com/syke99/xtractr/internal/unmarshal"
+	"github.com/syke99/xtractr/internal/resources"
 	"net/http"
 	"reflect"
 )
@@ -15,33 +14,25 @@ import (
 func ExtractParams(pattern string, request *http.Request, dst any) error {
 	str := reflect.ValueOf(dst)
 
-	if str.Kind() != reflect.Pointer &&
-		str.Elem().Kind() != reflect.Struct {
-		return errors.New("dst provided is not a valid pointer to a struct")
+	dstType := reflect.TypeOf(dst)
+
+	if dstType.Kind() != reflect.Pointer {
+		return resources.InvalidDst
 	}
 
-	if pattern[:1] == "/" {
-		pattern = pattern[1:]
-	}
-
-	if pattern[len(pattern)-1:] == "/" {
-		pattern = pattern[:len(pattern)-1]
+	if dstType.Kind() != reflect.Pointer &&
+		dstType.Elem().Kind() != reflect.Struct {
+		return resources.InvalidDst
 	}
 
 	reqPath := request.URL.Path
 
-	if reqPath[:1] == "/" {
-		reqPath = reqPath[1:]
-	}
-
-	if reqPath[len(reqPath)-1:] == "/" {
-		reqPath = reqPath[:len(reqPath)-1]
-	}
+	pattern, reqPath = internal.SanitizePaths(pattern, reqPath)
 
 	pathParams := internal.GetMatchedPathParams(pattern, reqPath)
 	if pathParams == nil {
-		return errors.New("error parsing path for parameters")
+		return resources.PathParseErr
 	}
 
-	return unmarshal.Unmarshal(request, str, pathParams)
+	return internal.Unmarshal(request, str, pathParams)
 }

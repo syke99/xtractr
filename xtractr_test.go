@@ -25,32 +25,6 @@ type TestStruct struct {
 	FieldTwentyThree int64  `xtractr:"query" xtractr-param:"fieldTwentyThree"`
 }
 
-type TestStructTwo struct {
-	FieldThirteen    float32    `xtractr:"path" xtractr-param:"fieldThirteen"`
-	FieldFourteen    float64    `xtractr:"path" xtractr-param:"fieldFourteen"`
-	FieldFifteen     complex64  `xtractr:"path" xtractr-param:"fieldFifteen"`
-	FieldSixteen     complex128 `xtractr:"path" xtractr-param:"fieldSixteen"`
-	FieldTwentyNine  float32    `xtractr:"query" xtractr-param:"fieldTwentyNine"`
-	FieldThirty      float64    `xtractr:"query" xtractr-param:"fieldThirty"`
-	FieldThirtyOne   complex64  `xtractr:"query" xtractr-param:"fieldThirtyOne"`
-	FieldThirtyTwo   complex128 `xtractr:"query" xtractr-param:"fieldThirtyTwo"`
-	FieldThirtyThree []string   `xtractr:"query" xtractr-param:"fieldThirtyThree"`
-}
-
-// TODO: implement tests for unsigned numbers
-type TestStructThree struct {
-	FieldEight       uint   `xtractr:"path" xtractr-param:"fieldEight"`
-	FieldNine        uint8  `xtractr:"path" xtractr-param:"fieldNine"`
-	FieldTen         uint16 `xtractr:"path" xtractr-param:"fieldTen"`
-	FieldEleven      uint32 `xtractr:"path" xtractr-param:"fieldEleven"`
-	FieldTwelve      uint64 `xtractr:"path" xtractr-param:"fieldTwelve"`
-	FieldTwentyFour  uint   `xtractr:"query" xtractr-param:"fieldTwentyFour"`
-	FieldTwentyFive  uint8  `xtractr:"query" xtractr-param:"fieldTwentyFive"`
-	FieldTwentySix   uint16 `xtractr:"query" xtractr-param:"fieldTwentySix"`
-	FieldTwentySeven uint32 `xtractr:"query" xtractr-param:"fieldTwentySeven"`
-	FieldTwentyEight uint64 `xtractr:"query" xtractr-param:"fieldTwentyEight"`
-}
-
 const testPath = "/{fieldOne}/{fieldTwo}/{fieldThree}/{fieldFour}/{fieldFive}/{fieldSix}/{fieldSeven}"
 
 func TestExtractParams_FirstStruct(t *testing.T) {
@@ -60,8 +34,9 @@ func TestExtractParams_FirstStruct(t *testing.T) {
 
 	request, _ := http.NewRequest(http.MethodGet, path, nil)
 
-	ExtractParams(testPath, request, &params)
+	err := ExtractParams(testPath, request, &params)
 
+	assert.NoError(t, err)
 	assert.Equal(t, true, params.FieldOne)
 	assert.Equal(t, "goodbye", params.FieldTwo)
 	assert.Equal(t, 1, params.FieldThree)
@@ -78,6 +53,18 @@ func TestExtractParams_FirstStruct(t *testing.T) {
 	assert.Equal(t, int64(5), params.FieldTwentyThree)
 }
 
+type TestStructTwo struct {
+	FieldThirteen    float32    `xtractr:"path" xtractr-param:"fieldThirteen"`
+	FieldFourteen    float64    `xtractr:"path" xtractr-param:"fieldFourteen"`
+	FieldFifteen     complex64  `xtractr:"path" xtractr-param:"fieldFifteen"`
+	FieldSixteen     complex128 `xtractr:"path" xtractr-param:"fieldSixteen"`
+	FieldTwentyNine  float32    `xtractr:"query" xtractr-param:"fieldTwentyNine"`
+	FieldThirty      float64    `xtractr:"query" xtractr-param:"fieldThirty"`
+	FieldThirtyOne   complex64  `xtractr:"query" xtractr-param:"fieldThirtyOne"`
+	FieldThirtyTwo   complex128 `xtractr:"query" xtractr-param:"fieldThirtyTwo"`
+	FieldThirtyThree []string   `xtractr:"query" xtractr-param:"fieldThirtyThree"`
+}
+
 const testPathTwo = "/{fieldThirteen}/{fieldFourteen}/{fieldFifteen}/{fieldSixteen}"
 
 func TestExtractParams_SecondStuct(t *testing.T) {
@@ -87,7 +74,7 @@ func TestExtractParams_SecondStuct(t *testing.T) {
 
 	request, _ := http.NewRequest(http.MethodGet, path, nil)
 
-	ExtractParams(testPathTwo, request, &params)
+	err := ExtractParams(testPathTwo, request, &params)
 
 	var complexThirteen complex64 = 0 + 13i
 
@@ -98,6 +85,7 @@ func TestExtractParams_SecondStuct(t *testing.T) {
 	strSlc[0] = "hello"
 	strSlc[1] = "world"
 
+	assert.NoError(t, err)
 	assert.Equal(t, float32(11.0), params.FieldThirteen)
 	assert.Equal(t, 12.1, params.FieldFourteen)
 	assert.Equal(t, complexThirteen, params.FieldFifteen)
@@ -110,6 +98,20 @@ func TestExtractParams_SecondStuct(t *testing.T) {
 		assert.Equal(t, strSlc[i], word)
 	}
 }
+
+// TODO: implement tests for unsigned numbers
+//type TestStructThree struct {
+//	FieldEight       uint   `xtractr:"path" xtractr-param:"fieldEight"`
+//	FieldNine        uint8  `xtractr:"path" xtractr-param:"fieldNine"`
+//	FieldTen         uint16 `xtractr:"path" xtractr-param:"fieldTen"`
+//	FieldEleven      uint32 `xtractr:"path" xtractr-param:"fieldEleven"`
+//	FieldTwelve      uint64 `xtractr:"path" xtractr-param:"fieldTwelve"`
+//	FieldTwentyFour  uint   `xtractr:"query" xtractr-param:"fieldTwentyFour"`
+//	FieldTwentyFive  uint8  `xtractr:"query" xtractr-param:"fieldTwentyFive"`
+//	FieldTwentySix   uint16 `xtractr:"query" xtractr-param:"fieldTwentySix"`
+//	FieldTwentySeven uint32 `xtractr:"query" xtractr-param:"fieldTwentySeven"`
+//	FieldTwentyEight uint64 `xtractr:"query" xtractr-param:"fieldTwentyEight"`
+//}
 
 type TestStructFour struct {
 	Nested TestStructFive `xtractr:"struct"`
@@ -131,8 +133,9 @@ func TestExtractParams_ForthStruct(t *testing.T) {
 
 	request, _ := http.NewRequest(http.MethodGet, path, nil)
 
-	ExtractParams(testPathFour, request, &params)
+	err := ExtractParams(testPathFour, request, &params)
 
+	assert.NoError(t, err)
 	assert.Equal(t, "one", params.Nested.One)
 	assert.Equal(t, tm, params.Time)
 }
@@ -163,8 +166,9 @@ func TestExtractParams_SQL(t *testing.T) {
 
 	request, _ := http.NewRequest(http.MethodGet, path, nil)
 
-	ExtractParams(testPathFive, request, &params)
+	err := ExtractParams(testPathFive, request, &params)
 
+	assert.NoError(t, err)
 	// sql.NullTime
 	t13 := time.Date(2022, time.Month(12), 01, 0, 0, 0, 0, time.UTC)
 	assert.Equal(t, t13, params.FieldThirteen.Time)

@@ -1,6 +1,31 @@
 package internal
 
-import "strings"
+import (
+	"github.com/syke99/xtractr/internal/unmarshal"
+	"net/http"
+	"reflect"
+	"strings"
+)
+
+func SanitizePaths(pattern string, reqPath string) (string, string) {
+	if pattern[:1] == "/" {
+		pattern = pattern[1:]
+	}
+
+	if pattern[len(pattern)-1:] == "/" {
+		pattern = pattern[:len(pattern)-1]
+	}
+
+	if reqPath[:1] == "/" {
+		reqPath = reqPath[1:]
+	}
+
+	if reqPath[len(reqPath)-1:] == "/" {
+		reqPath = reqPath[:len(reqPath)-1]
+	}
+
+	return pattern, reqPath
+}
 
 func GetMatchedPathParams(toMatch string, requested string) map[string]string {
 
@@ -25,4 +50,8 @@ func GetMatchedPathParams(toMatch string, requested string) map[string]string {
 	}
 
 	return m
+}
+
+func Unmarshal(request *http.Request, str reflect.Value, pathParams map[string]string) error {
+	return unmarshal.Unmarshal(request, str, pathParams)
 }
