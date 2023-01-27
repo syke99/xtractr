@@ -44,6 +44,16 @@ func TestExtractParams_NilRequest(t *testing.T) {
 	assert.Equal(t, resources.MissingIncomingRequest, err)
 }
 
+func TestExtractParams_PathParamParseError(t *testing.T) {
+	dst := struct{}{}
+
+	req, _ := http.NewRequest("", "/hello", nil)
+
+	err := ExtractParams("/hello/world", req, &dst)
+
+	assert.Equal(t, resources.PathParseErr, err)
+}
+
 type TestStruct struct {
 	FieldOne         bool   `xtractr:"path" xtractr-param:"fieldOne"`
 	FieldTwo         string `xtractr:"path" xtractr-param:"fieldTwo"`

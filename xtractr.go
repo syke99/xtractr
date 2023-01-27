@@ -30,7 +30,7 @@ func ExtractParams(pattern string, request *http.Request, dst any) error {
 
 	str := reflect.ValueOf(dst)
 
-	reqPath := request.URL.Path
+	reqPath := request.URL.EscapedPath()
 
 	pattern, reqPath = internal.SanitizePaths(pattern, reqPath)
 
