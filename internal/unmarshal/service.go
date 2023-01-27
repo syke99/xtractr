@@ -50,7 +50,9 @@ func Unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 				continue
 			}
 
-			elem.Field(i).Set(reflect.ValueOf(ptr.Elem().Interface()))
+			if elem.Field(i).CanSet() {
+				elem.Field(i).Set(reflect.ValueOf(ptr.Elem().Interface()))
+			}
 			continue
 		}
 
@@ -60,24 +62,27 @@ func Unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 			continue
 		}
 
-		switch sqlType {
-		case false:
-			err = basic.Unmarshal(i, request, xtractrTag, elem, field, tag, pathParams, param)
-			if err != nil {
-				fieldErrs = append(fieldErrs, field.Name)
-				continue
-			}
-		case true:
-			err = sql.Unmarshal(i, request, xtractrTag, elem, tag, pathParams, param)
-			if err != nil {
-				fieldErrs = append(fieldErrs, field.Name)
-				continue
-			}
+		err = unmarshalOnType(sqlType, i, request, xtractrTag, elem, field, tag, pathParams, param)
+		if err != nil {
+			fieldErrs = append(fieldErrs, field.Name)
+			continue
 		}
 	}
 
 	if len(fieldErrs) != 0 {
 		err = errors.New(fmt.Sprintf("%s", strings.Join(fieldErrs, ", ")))
+	}
+
+	return err
+}
+
+func unmarshalOnType(sqlType bool, i int, request *http.Request, xtractrTag string, elem reflect.Value, field reflect.StructField, tag reflect.StructTag, pathParams map[string]string, param string) error {
+	var err error
+	switch sqlType {
+	case false:
+		err = basic.Unmarshal(i, request, xtractrTag, elem, field, tag, pathParams, param)
+	case true:
+		err = sql.Unmarshal(i, request, xtractrTag, elem, tag, pathParams, param)
 	}
 
 	return err

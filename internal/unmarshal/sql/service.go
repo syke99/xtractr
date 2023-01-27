@@ -3,7 +3,7 @@ package sql
 import (
 	"database/sql"
 	"errors"
-	"github.com/syke99/xtractr/internal/models"
+	"github.com/syke99/xtractr/internal/pkg/resources/models"
 	"net/http"
 	"reflect"
 	"strconv"

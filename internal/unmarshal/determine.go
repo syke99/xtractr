@@ -8,9 +8,12 @@ import (
 func DetermineSQL(xtractrTag string) (bool, error) {
 	xTags := strings.Split(xtractrTag, ",")
 
+	if len(xTags) > 2 {
+		return false, errors.New("incorrect xtractr value(s) provided")
+	}
+
 	err := verifyValues(xTags)
-	if err != nil ||
-		len(xTags) > 2 {
+	if err != nil {
 		return false, err
 	}
 

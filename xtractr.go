@@ -2,7 +2,8 @@ package xtractr
 
 import (
 	"github.com/syke99/xtractr/internal"
-	"github.com/syke99/xtractr/internal/resources"
+	"github.com/syke99/xtractr/internal/pkg/resources"
+	"github.com/syke99/xtractr/internal/unmarshal"
 	"net/http"
 	"reflect"
 )
@@ -34,5 +35,5 @@ func ExtractParams(pattern string, request *http.Request, dst any) error {
 		return resources.PathParseErr
 	}
 
-	return internal.Unmarshal(request, str, pathParams)
+	return unmarshal.Unmarshal(request, str, pathParams)
 }
