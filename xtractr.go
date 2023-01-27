@@ -13,18 +13,22 @@ import (
 // to unmarshal to (dst), extracts all parameters for the request path
 // and query, and unmarshals them to dst
 func ExtractParams(pattern string, request *http.Request, dst any) error {
-	str := reflect.ValueOf(dst)
+	if pattern == "" {
+		return resources.MissingPattern
+	}
+
+	if request == nil {
+		return resources.MissingIncomingRequest
+	}
 
 	dstType := reflect.TypeOf(dst)
 
-	if dstType.Kind() != reflect.Pointer {
-		return resources.InvalidDst
-	}
-
-	if dstType.Kind() != reflect.Pointer &&
+	if dstType.Kind() != reflect.Pointer ||
 		dstType.Elem().Kind() != reflect.Struct {
 		return resources.InvalidDst
 	}
+
+	str := reflect.ValueOf(dst)
 
 	reqPath := request.URL.Path
 
