@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"github.com/syke99/xtractr/internal/unmarshal/basic"
 	"github.com/syke99/xtractr/internal/unmarshal/sql"
-	"net/http"
+	"net/url"
 	"reflect"
 	"strings"
 )
 
-func Unmarshal(request *http.Request, str reflect.Value, pathParams map[string]string) error {
+func Unmarshal(queryValues url.Values, str reflect.Value, pathParams map[string]string) error {
 	var err error
 
 	elem := str.Elem()
@@ -30,20 +30,7 @@ func Unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 		}
 
 		if xtractrTag == "struct" {
-			num := field.Type.NumField()
-			sF := make([]reflect.StructField, num)
-			for i := 0; i < num; i++ {
-				fl := field.Type.Field(i)
-				f := reflect.StructField{
-					Name: fl.Name,
-					Type: fl.Type,
-					Tag:  fl.Tag,
-				}
-				sF[i] = f
-			}
-
-			ptr := reflect.New(reflect.StructOf(sF))
-			err := Unmarshal(request, ptr, pathParams)
+			ptr, err := recurseIntoNestedStruct(field, queryValues, pathParams)
 			if err != nil {
 				nestedErrs := fmt.Sprintf("failed to unmarshal fields (%s) in nested struct %s", err.Error(), field.Name)
 				fieldErrs = append(fieldErrs, nestedErrs)
@@ -62,7 +49,7 @@ func Unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 			continue
 		}
 
-		err = unmarshalOnType(sqlType, i, request, xtractrTag, elem, field, tag, pathParams, param)
+		err = unmarshalOnType(sqlType, i, queryValues, xtractrTag, elem, field, tag, pathParams, param)
 		if err != nil {
 			fieldErrs = append(fieldErrs, field.Name)
 			continue
@@ -76,13 +63,32 @@ func Unmarshal(request *http.Request, str reflect.Value, pathParams map[string]s
 	return err
 }
 
-func unmarshalOnType(sqlType bool, i int, request *http.Request, xtractrTag string, elem reflect.Value, field reflect.StructField, tag reflect.StructTag, pathParams map[string]string, param string) error {
+func recurseIntoNestedStruct(field reflect.StructField, queryValues url.Values, pathParams map[string]string) (reflect.Value, error) {
+	num := field.Type.NumField()
+	sF := make([]reflect.StructField, num)
+	for i := 0; i < num; i++ {
+		fl := field.Type.Field(i)
+		f := reflect.StructField{
+			Name: fl.Name,
+			Type: fl.Type,
+			Tag:  fl.Tag,
+		}
+		sF[i] = f
+	}
+
+	ptr := reflect.New(reflect.StructOf(sF))
+	err := Unmarshal(queryValues, ptr, pathParams)
+
+	return ptr, err
+}
+
+func unmarshalOnType(sqlType bool, i int, queryValues url.Values, xtractrTag string, elem reflect.Value, field reflect.StructField, tag reflect.StructTag, pathParams map[string]string, param string) error {
 	var err error
 	switch sqlType {
 	case false:
-		err = basic.Unmarshal(i, request, xtractrTag, elem, field, tag, pathParams, param)
+		err = basic.Unmarshal(i, queryValues, xtractrTag, elem, field, tag, pathParams, param)
 	case true:
-		err = sql.Unmarshal(i, request, xtractrTag, elem, tag, pathParams, param)
+		err = sql.Unmarshal(i, queryValues, xtractrTag, elem, tag, pathParams, param)
 	}
 
 	return err

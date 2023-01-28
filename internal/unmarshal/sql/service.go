@@ -4,21 +4,21 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/syke99/xtractr/internal/pkg/resources/models"
-	"net/http"
+	"net/url"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
 )
 
-func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Value, tag reflect.StructTag, pathParams map[string]string, param string) error {
+func Unmarshal(i int, queryValues url.Values, xtractrTag string, elem reflect.Value, tag reflect.StructTag, pathParams map[string]string, param string) error {
 
 	xtractrTag = strings.Split(xtractrTag, ",")[0]
 
 	if xtractrTag == "query" &&
 		elem.Field(i).CanSet() {
 
-		vals, ok := request.URL.Query()[param]
+		vals, ok := queryValues[param]
 		if !ok {
 			return errors.New("parameter not found in query")
 		}
@@ -26,8 +26,8 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 		switch elem.Field(i).Interface().(type) {
 		case sql.NullBool:
 			b := false
-			if request.URL.Query().Has(param) &&
-				request.URL.Query().Get(param) != "" {
+			if queryValues.Has(param) &&
+				queryValues.Get(param) != "" {
 				v, err := strconv.ParseBool(vals[0])
 				if err != nil {
 					return err
@@ -36,8 +36,8 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 				b = v
 			}
 
-			if request.URL.Query().Has(param) &&
-				request.URL.Query().Get(param) == "" {
+			if queryValues.Has(param) &&
+				queryValues.Get(param) == "" {
 				b = true
 			}
 			nb := sql.NullBool{
@@ -164,8 +164,8 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 		switch elem.Field(i).Interface().(type) {
 		case sql.NullBool:
 			b := false
-			if request.URL.Query().Has(param) &&
-				request.URL.Query().Get(param) != "" {
+			if queryValues.Has(param) &&
+				queryValues.Get(param) != "" {
 				v, err := strconv.ParseBool(j)
 				if err != nil {
 					return err
@@ -174,8 +174,8 @@ func Unmarshal(i int, request *http.Request, xtractrTag string, elem reflect.Val
 				b = v
 			}
 
-			if request.URL.Query().Has(param) &&
-				request.URL.Query().Get(param) == "" {
+			if queryValues.Has(param) &&
+				queryValues.Get(param) == "" {
 				b = true
 			}
 			nb := sql.NullBool{

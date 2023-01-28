@@ -39,5 +39,5 @@ func ExtractParams(pattern string, request *http.Request, dst any) error {
 		return resources.PathParseErr
 	}
 
-	return unmarshal.Unmarshal(request, str, pathParams)
+	return unmarshal.Unmarshal(request.URL.Query(), str, pathParams)
 }
