@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/syke99/xtractr/internal/pkg/resources/models"
+	"github.com/syke99/xtractr/internal/unmarshal/common"
 	"net/url"
 	"reflect"
 	"strconv"
@@ -93,55 +94,9 @@ func Unmarshal(i int, queryValues url.Values, xtractrTag string, elem reflect.Va
 			}
 			elem.Field(i).Set(reflect.ValueOf(nf64))
 		case sql.NullTime:
-			var t time.Time
-			var err error
-
-			format := tag.Get("xtractr-time")
-
-			layout := ""
-
-			if format == "" || format == "ISO8601" {
-				if format == "ISO8601" {
-					var year int
-					var month time.Month
-					var day int
-					var er error
-
-					tParts := strings.Split(vals[0], "-")
-
-					year, er = strconv.Atoi(tParts[0])
-					if er != nil {
-						return err
-					}
-
-					m := 0
-					m, er = strconv.Atoi(tParts[1])
-					if er != nil {
-						return err
-					}
-
-					month = time.Month(m)
-
-					day, er = strconv.Atoi(tParts[2])
-					if er != nil {
-						return err
-					}
-
-					t = time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-				} else {
-					layout = time.Layout
-				}
-			}
-
-			if format != "" && format != "ISO8601" {
-				if f, ok := models.TimeLayouts()[format]; ok {
-					layout = f
-				}
-
-				t, err = time.Parse(layout, vals[0])
-				if err != nil {
-					return err
-				}
+			t, err := common.FormatTime(vals[0], tag.Get("xtractr-time"))
+			if err != nil {
+				return err
 			}
 			s := sql.NullTime{
 				Time:  t,
