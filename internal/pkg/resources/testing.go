@@ -30,7 +30,7 @@ type TestStruct struct {
 }
 
 const TestPathTwo = "/{fieldThirteen}/{fieldFourteen}/{fieldFifteen}/{fieldSixteen}"
-const PathTwo = "11.0/12.1/13i/14i?fieldTwentyNine=11.0&fieldThirty=12.1&fieldThirtyOne=13i&fieldThirtyTwo=14i&fieldThirtyThree=hello&fieldThirtyThree=world"
+const PathTwo = "/11.0/12.1/13i/14i?fieldTwentyNine=11.0&fieldThirty=12.1&fieldThirtyOne=13i&fieldThirtyTwo=14i&fieldThirtyThree=hello&fieldThirtyThree=world"
 
 type TestStructTwo struct {
 	FieldThirteen    float32    `xtractr:"path" xtractr-param:"fieldThirteen"`

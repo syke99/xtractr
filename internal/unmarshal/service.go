@@ -51,13 +51,13 @@ func Unmarshal(queryValues url.Values, str reflect.Value, pathParams map[string]
 
 		err = unmarshalOnType(sqlType, i, queryValues, xtractrTag, elem, field, tag, pathParams, param)
 		if err != nil {
-			fieldErrs = append(fieldErrs, field.Name)
+			fieldErrs = append(fieldErrs, fmt.Sprintf("field: %s, error: %s", field.Name, err.Error()))
 			continue
 		}
 	}
 
 	if len(fieldErrs) != 0 {
-		err = errors.New(fmt.Sprintf("%s", strings.Join(fieldErrs, ", ")))
+		err = errors.New(fmt.Sprintf("%s", strings.Join(fieldErrs, ",\n")))
 	}
 
 	return err

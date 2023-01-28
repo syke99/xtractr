@@ -163,23 +163,12 @@ func Unmarshal(i int, queryValues url.Values, xtractrTag string, elem reflect.Va
 
 		switch elem.Field(i).Interface().(type) {
 		case sql.NullBool:
-			b := false
-			if queryValues.Has(param) &&
-				queryValues.Get(param) != "" {
-				v, err := strconv.ParseBool(j)
-				if err != nil {
-					return err
-				}
-
-				b = v
-			}
-
-			if queryValues.Has(param) &&
-				queryValues.Get(param) == "" {
-				b = true
+			v, err := strconv.ParseBool(j)
+			if err != nil {
+				return err
 			}
 			nb := sql.NullBool{
-				Bool:  b,
+				Bool:  v,
 				Valid: true,
 			}
 			elem.Field(i).Set(reflect.ValueOf(nb))
