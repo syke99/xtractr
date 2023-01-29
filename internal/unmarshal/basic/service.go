@@ -105,6 +105,8 @@ func Unmarshal(i int, queryValues url.Values, xtractrTag string, elem reflect.Va
 				return err
 			}
 			elem.Field(i).SetUint(v)
+		case reflect.Array, reflect.Slice:
+			elem.Field(i).Set(reflect.ValueOf(vals))
 		}
 	}
 
@@ -192,8 +194,6 @@ func Unmarshal(i int, queryValues url.Values, xtractrTag string, elem reflect.Va
 				return err
 			}
 			elem.Field(i).SetUint(v)
-		case reflect.Array, reflect.Slice:
-			elem.Set(reflect.ValueOf(j))
 		}
 	}
 
