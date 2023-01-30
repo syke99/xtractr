@@ -2,7 +2,6 @@ package sql
 
 import (
 	"database/sql"
-	"errors"
 	"github.com/syke99/xtractr/internal/pkg/resources/models"
 	"github.com/syke99/xtractr/internal/unmarshal/common"
 	"net/url"
@@ -21,7 +20,7 @@ func Unmarshal(i int, queryValues url.Values, xtractrTag string, elem reflect.Va
 
 		vals, ok := queryValues[param]
 		if !ok {
-			return errors.New("parameter not found in query")
+			return nil
 		}
 
 		switch elem.Field(i).Interface().(type) {
@@ -113,7 +112,7 @@ func Unmarshal(i int, queryValues url.Values, xtractrTag string, elem reflect.Va
 
 		j, ok := pathParams[param]
 		if !ok {
-			return errors.New("parameter not found in path")
+			return nil
 		}
 
 		switch elem.Field(i).Interface().(type) {
