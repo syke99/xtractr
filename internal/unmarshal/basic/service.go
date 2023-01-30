@@ -1,7 +1,6 @@
 package basic
 
 import (
-	"errors"
 	"github.com/syke99/xtractr/internal/unmarshal/common"
 	"net/url"
 	"reflect"
@@ -16,7 +15,7 @@ func Unmarshal(i int, queryValues url.Values, xtractrTag string, elem reflect.Va
 
 		vals, ok := queryValues[param]
 		if !ok {
-			return errors.New("parameter not found in query")
+			return nil
 		}
 
 		switch field.Type.Kind() {
@@ -116,7 +115,7 @@ func Unmarshal(i int, queryValues url.Values, xtractrTag string, elem reflect.Va
 		j, ok := pathParams[param]
 		if !ok {
 			if !ok {
-				return errors.New("parameter not found in path")
+				return nil
 			}
 		}
 
